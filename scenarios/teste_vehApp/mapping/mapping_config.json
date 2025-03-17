@@ -1,0 +1,110 @@
+{
+    "config": {
+        "fixedOrder": true
+    },
+    "prototypes": [
+        {
+            "name": "Car",
+            "vehicleClass": "ElectricVehicle",
+            "accel": 2.6,
+            "decel": 4.5,
+            "emergencyDecel": 6.0,
+            "length": 5.00,
+            "maxSpeed": 70.0,
+            "minGap": 2.5,
+            "sigma": 0.5,
+            "tau": 1,
+            "speedFactor": 1.0,
+            "speedMode": "DEFAULT",
+            "laneChangeMode": "DEFAULT",
+            "deviations": {
+                "speedFactor": 0.0,
+                "length": 0.0,
+                "minGap": 0.0,
+                "maxSpeed": 0.0,
+                "accel": 0.0,
+                "decel": 0.0,
+                "tau": 0.0
+            }
+        },
+        {
+            "name": "CarVehApp",
+            "accel": 2.6,
+            "decel": 4.5,
+            "length": 5.00,
+            "maxSpeed": 70.0,
+            "minGap": 2.5,
+            "sigma": 0.5,
+            "speedDeviation": 0.1,
+            "tau": 1,
+            "applications": [
+                "pt.uminho.npr.tutorial.VehApp"
+            ]
+        }
+    ],
+    "servers": [
+        {
+            "name": "WeatherServer",
+            "group": "WeatherServer",
+            "applications": [
+                "org.eclipse.mosaic.app.tutorial.WeatherServerApp"
+            ]
+        }
+    ],
+    "vehicles": [
+        {
+            "startingTime": "5.0 s",
+            "targetFlow": 1000000000,
+            "maxNumberVehicles": 12,
+            "pos": 60,
+            "route": "r_0",
+            "lanes": [
+                0
+            ],
+            "types": [
+                {
+                    "name": "Car",
+                    "group": "Cellular",
+                    "weight": 0.1
+                },
+                {
+                    "name": "Car1",
+                    "group": "AdHoc",
+                    "weight": 0.2
+                },
+                {
+                    "name": "Car2",
+                    "group": "Unequipped",
+                    "weight": 0.7
+                }
+            ]
+        },
+        {
+            "startingTime": "5.0 s",
+            "targetFlow": 1000000000,
+            "maxNumberVehicles": 12,
+            "pos": 60,
+            "route": "r_1",
+            "lanes": [
+                0
+            ],
+            "types": [
+                {
+                    "name": "Car",
+                    "group": "Cellular",
+                    "weight": 0.1
+                },
+                {
+                    "name": "Car1",
+                    "group": "AdHoc",
+                    "weight": 0.2
+                },
+                {
+                    "name": "Car2",
+                    "group": "Unequipped",
+                    "weight": 0.7
+                }
+            ]
+        }
+    ]
+}

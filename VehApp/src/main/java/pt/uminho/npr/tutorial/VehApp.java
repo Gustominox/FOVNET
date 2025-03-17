@@ -55,13 +55,35 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem> implemen
         getLog().infoSimTime(this, "processEvent");
         if(setVal == 1)
             sendVehInfoMsg();
+    
+    // Example: Send a STOP message every 5 seconds
+    if (getOs().getSimulationTime() % (5 * TIME.SECOND) == 0) {
+        sendStopMessage();
+    }
+    
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
+    
+    
     }
 
-    @Override
-    public void onMessageReceived(ReceivedV2xMessage arg0) {
-        getLog().infoSimTime(this, "onMessageReceived");
+
+
+@Override
+public void onMessageReceived(ReceivedV2xMessage receivedMessage) {
+    getLog().infoSimTime(this, "onMessageReceived");
+
+    if (receivedMessage.getMessage() instanceof StopMessage) {
+        StopMessage stopMsg = (StopMessage) receivedMessage.getMessage();
+        getLog().infoSimTime(this, "Received STOP message from " + stopMsg.getSenderName());
+
+        // Logic to stop the vehicle (this depends on the simulator's API)
+        // stoppedAt = getOs().getSimulationTime();
+        getOs().changeSpeedWithForcedAcceleration(3.0d, 5d);
+        getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
     }
+}
+
+
 
     @Override
     public void onMessageTransmitted(V2xMessageTransmission arg0) {
@@ -88,6 +110,20 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem> implemen
     public void onCamBuilding(CamBuilder arg0) {
         getLog().infoSimTime(this, "onCamBuilding");
     }
+
+private void sendStopMessage(){
+    MessageRouting routing = getOs().getAdHocModule()
+        .createMessageRouting()
+        .viaChannel(AdHocChannel.CCH)  // Send on Control Channel
+        .topoBroadCast(); // Broadcast to nearby vehicles
+
+    long time = getOs().getSimulationTime();
+
+    StopMessage message = new StopMessage(routing, time, getOs().getId(), getOs().getPosition(), this.vehHeading, this.vehSpeed, this.vehLane);
+
+    getOs().getAdHocModule().sendV2xMessage(message);
+    getLog().infoSimTime(this, "Sent StopMessage: " + message.toString());
+}
 
     private void sendVehInfoMsg(){
         MessageRouting routing = getOs().getAdHocModule().createMessageRouting().viaChannel(AdHocChannel.CCH).topoBroadCast();
