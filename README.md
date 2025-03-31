@@ -15,11 +15,13 @@
 - Reagir mensagem a mensagem de awareness dos vizinhos
 - Implementar logica de mensagem V2Rsu
 - Reagir a Mensagem vinda do Fog (*Evento*)
+- BroadCast de Beacon messages
 
 ### RSU
 
  - Relay de Mensagens vindas da Rede veicular para o Fog (Unicast)
  - Enviar Mensagens para a Rede Veicular vindas do Fog (Brodcast)
+ - Beacon messages para informar a rede da sua existencia
 
 ### Fog
 - Reagir a velocidade acima do limite
