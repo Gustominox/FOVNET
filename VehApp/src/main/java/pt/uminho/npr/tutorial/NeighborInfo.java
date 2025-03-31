@@ -1,7 +1,5 @@
 package pt.uminho.npr.tutorial;
 
-import org.eclipse.mosaic.lib.util.objects.Position;
-
 public class NeighborInfo {
     public String id;
     public Position position;
