@@ -4,9 +4,9 @@
 
 - Definir algoritmo de forwarding de V2Rsu
 - Eventos do fog a implementar/loggar
-- Criar mapa de testes 
-- Defenir output para o output.csv
-- 
+- Criar mapa de testes
+- Definir output para o output.csv
+  
 ## Aplicações
 
 ### Carro
