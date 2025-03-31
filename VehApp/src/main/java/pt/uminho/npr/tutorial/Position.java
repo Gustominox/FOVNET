@@ -30,7 +30,7 @@ public class Position {
     }
 
     public double distanceTo(Position other) {
-        return this.geoPoint.distanceTo(other.geoPoint);
+        return this.geoPoint.distanceTo(other.toGeoPoint());
     }
 
     public GeoPoint toGeoPoint() {
