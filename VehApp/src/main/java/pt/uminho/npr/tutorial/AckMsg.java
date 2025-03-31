@@ -7,25 +7,38 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
+import org.eclipse.mosaic.lib.geo.GeoPoint;
 import org.eclipse.mosaic.lib.objects.v2x.EncodedPayload;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
 
 public class AckMsg extends V2xMessage {
-    private final String originalSenderId;
-    private final long originalTimestamp;
+
+    private final EncodedPayload payload;
+
+    private final String messageId;
+
+    private final long timeStamp;
+    private final String senderName;
+    private final GeoPoint senderPos;
+    private final double senderHeading;
+    private final double senderSpeed;
+    private final int senderLaneId;
 
     public AckMsg(
-        MessageRouting routing,
-        long timestamp,
-        String senderId,
-        Position senderPosition,
-        String originalSenderId,
-        long originalTimestamp
-    ) {
-        
+            final MessageRouting routing,
+            final String messageId,
+            final long time,
+            final String name,
+            final GeoPoint pos,
+            final double heading,
+            final double speed,
+            final int laneId) {
 
         super(routing);
+        this.messageId = messageId;
         this.timeStamp = time;
         this.senderName = name;
         this.senderPos = pos;
@@ -33,7 +46,7 @@ public class AckMsg extends V2xMessage {
         this.senderSpeed = speed;
         this.senderLaneId = laneId;
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             final DataOutputStream dos = new DataOutputStream(baos)) {
+                final DataOutputStream dos = new DataOutputStream(baos)) {
             dos.writeLong(timeStamp);
             dos.writeUTF(senderName);
             SerializationUtils.encodeGeoPoint(dos, senderPos);
@@ -47,18 +60,18 @@ public class AckMsg extends V2xMessage {
         }
     }
 
-    public String getOriginalSenderId() {
-        return originalSenderId;
+    @Nonnull
+    @Override
+    public EncodedPayload getPayload() {
+        return payload;
     }
 
-    public long getOriginalTimestamp() {
-        return originalTimestamp;
+    public String getMessageId() {
+        return messageId;
     }
 
     @Override
     public String toString() {
-        return "AckMsg from " + getSenderName() +
-               " for msg from " + originalSenderId +
-               " at time " + originalTimestamp;
+        return "AckMsg for message: " + getMessageId();
     }
 }
