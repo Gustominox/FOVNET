@@ -13,6 +13,10 @@ public class Position {
         this.geoPoint = geoPoint;
     }
 
+    public Position(Position senderPos) {
+        this.geoPoint = senderPos.toGeoPoint();
+    }
+
     public double getLatitude() {
         return geoPoint.getLatitude();
     }
