@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import org.eclipse.mosaic.lib.util.objects.Position;
 
 
 public class VehApp extends AbstractApplication<VehicleOperatingSystem> implements VehicleApplication, CommunicationApplication
@@ -150,7 +151,7 @@ private void tryForwardToNearestRsu() {
     }
 
     // Determinar RSU mais próximo
-    Position myPos = getOs().getPosition();
+    Position myPos = new Position(getOs().getPosition());
     NeighborInfo closestRsu = null;
     double minDistance = Double.MAX_VALUE;
 
