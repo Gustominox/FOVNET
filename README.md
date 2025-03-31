@@ -29,6 +29,6 @@
 
 ### Tasks a realizar 17/03-24/03
 
-- Mensagem de Awareness a chegar ao Fog (Carro) -> Juliana
+- Mensagem de Awareness a chegar ao RSU (Carro) -> Juliana
 - Definir algoritmo e proto-implementação -> Gusto
 - Fazer uma Mensagem F2V Chegar ao Rsu (por exemplo velocidade acima do limite) -> Carlos
