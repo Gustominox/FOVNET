@@ -6,11 +6,9 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-import org.eclipse.mosaic.lib.geo.GeoPoint;
 import org.eclipse.mosaic.lib.objects.v2x.EncodedPayload;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
-import org.eclipse.mosaic.lib.util.SerializationUtils;
 
 /*
  * timestamp
