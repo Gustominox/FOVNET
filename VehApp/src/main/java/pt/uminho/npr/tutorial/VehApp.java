@@ -10,7 +10,6 @@ import org.eclipse.mosaic.fed.application.app.api.VehicleApplication;
 import org.eclipse.mosaic.fed.application.app.api.os.VehicleOperatingSystem;
 import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
 import org.eclipse.mosaic.lib.enums.AdHocChannel;
-import org.eclipse.mosaic.lib.geo.GeoPoint;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.vehicle.VehicleData;
 import org.eclipse.mosaic.lib.util.scheduling.Event;
@@ -28,8 +27,6 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     private final long MsgDelay = 200 * TIME.MILLI_SECOND;
     private final int Power = 50;
     private final double Distance = 140.0;
-
-    private int setVal;
 
     private final Map<String, NeighborInfo> knownVehicleNeighbors = new HashMap<>();
     private final Map<String, NeighborInfo> knownRsuNeighbors = new HashMap<>();
@@ -58,7 +55,6 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 .create());
 
         getLog().infoSimTime(this, "onStartup: Set up");
-        setVal = 0;
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
     }
 
@@ -67,12 +63,9 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         getLog().infoSimTime(this, "processEvent");
         cleanupOldNeighbors();
 
-        if (setVal == 1)
-            sendVehInfoMsg();
-
-        // Example: Send a STOP message every 5 seconds
+        // Example: Send a Awareness message every 5 seconds
         if (getOs().getSimulationTime() % (5 * TIME.SECOND) == 0) {
-            sendStopMessage();
+            sendVehInfoMsg();
         }
 
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
@@ -195,8 +188,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     @Override
     public void onVehicleUpdated(@Nullable VehicleData previousVehicleData, @Nonnull VehicleData updatedVehicleData) {
         getLog().infoSimTime(this, "onVehicleUpdated");
-        if (setVal == 0)
-            setVal = 1;
+
         this.vehHeading = updatedVehicleData.getHeading().doubleValue();
         this.vehSpeed = updatedVehicleData.getSpeed();
         this.vehLane = updatedVehicleData.getRoadPosition().getLaneIndex();
