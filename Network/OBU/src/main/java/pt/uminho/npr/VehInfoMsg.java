@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import org.eclipse.mosaic.lib.objects.v2x.EncodedPayload;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
+import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
 
 /*
  * timestamp
@@ -29,6 +30,8 @@ public class VehInfoMsg extends V2xMessage {
     private final double senderHeading;
     private final double senderSpeed;
     private final int senderLaneId;
+    private final double distanceToRsu; // Distance to nearest RSU
+    private final int numberOfHops; // Number of hops for the message
 
     public VehInfoMsg(
             final MessageRouting routing,
@@ -38,7 +41,9 @@ public class VehInfoMsg extends V2xMessage {
             final Position pos,
             final double heading,
             final double speed,
-            final int laneId) {
+            final int laneId,
+            final double distanceToRsu,
+            final int numberOfHops) {
 
         super(routing);
         this.messageId = messageId;
@@ -48,15 +53,22 @@ public class VehInfoMsg extends V2xMessage {
         this.senderHeading = heading;
         this.senderSpeed = speed;
         this.senderLaneId = laneId;
+        this.distanceToRsu = distanceToRsu;
+        this.numberOfHops = numberOfHops;
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataOutputStream dos = new DataOutputStream(baos)) {
+            // Write existing fields to the output stream
             dos.writeUTF(messageId);
             dos.writeLong(timeStamp);
             dos.writeUTF(senderName);
-            senderPos.encode(dos); // substitui o encodeGeoPoint
+            senderPos.encode(dos); // encode the sender position
             dos.writeDouble(senderHeading);
             dos.writeDouble(senderSpeed);
             dos.writeInt(senderLaneId);
+
+            // Write the additional fields for distance and hops
+            dos.writeDouble(distanceToRsu); // Write distance to RSU
+            dos.writeInt(numberOfHops); // Write number of hops
 
             payload = new EncodedPayload(baos.toByteArray(), baos.size());
         } catch (IOException e) {
@@ -98,6 +110,22 @@ public class VehInfoMsg extends V2xMessage {
         return senderLaneId;
     }
 
+    public double getDistanceToRsu() {
+        return distanceToRsu;
+    }
+
+    public int getNumberOfHops() {
+        return numberOfHops;
+    }
+
+    public VehInfoMsg clone(final MessageRouting routing) {
+        return new VehInfoMsg(
+                routing,
+                messageId, // ID original
+                timeStamp,
+                senderName, senderPos, senderHeading, senderSpeed, senderLaneId, distanceToRsu, numberOfHops);
+    }
+
     @Override
     public String toString() {
         return "VehInfoMessage{" +
@@ -106,6 +134,8 @@ public class VehInfoMsg extends V2xMessage {
                 ", senderPosition=" + senderPos +
                 ", senderHeading=" + senderHeading +
                 ", senderSpeed=" + senderSpeed +
-                ", senderLaneId=" + senderLaneId + '}';
+                ", senderLaneId=" + senderLaneId +
+                ", distanceToRsu=" + distanceToRsu +
+                ", numberOfHops=" + numberOfHops + '}';
     }
 }

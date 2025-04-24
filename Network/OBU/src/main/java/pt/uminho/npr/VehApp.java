@@ -102,6 +102,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             NeighborInfo neighbor = new NeighborInfo(
                     senderId,
                     fwdMsg.getSenderPosition(),
+                    fwdMsg.getDistanceToRsu(),
+                    fwdMsg.getNumberOfHops(),
                     fwdMsg.getHeading(),
                     fwdMsg.getSpeed(),
                     fwdMsg.getLaneId(),
@@ -163,15 +165,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                     .viaChannel(AdHocChannel.CCH)
                     .topoBroadCast();
 
-            VehInfoMsg msgCopy = new VehInfoMsg(
-                    routing,
-                    originalMsg.getMessageId(), // ID original
-                    getOs().getSimulationTime(),
-                    originalMsg.getSenderName(), // remetente original
-                    originalMsg.getSenderPosition(), // posição original
-                    originalMsg.getHeading(),
-                    originalMsg.getSpeed(),
-                    originalMsg.getLaneId());
+            VehInfoMsg msgCopy = originalMsg.clone(routing);
 
             getOs().getAdHocModule().sendV2xMessage(msgCopy);
             getLog().infoSimTime(this, "Forwarded message " + msgCopy.getMessageId() +
@@ -230,6 +224,25 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         String carId = getOs().getId();
         String messageId = carId + "_" + msgIdCounter++;
 
+        // Check closest RSU
+        Position myPosition = new Position(getOs().getPosition()); // Vehicle's current position
+        NeighborInfo receiver = findClosestRsu(myPosition);
+        double distanceToRsu = Double.MAX_VALUE; // Default if no RSU is found
+        int numberOfHops = -1;
+        if (receiver != null) {
+            distanceToRsu = myPosition.distanceTo(receiver.position); // Calculate distance to the closest RSU
+            numberOfHops = 0;
+
+        } else { // search for neiborh Closest to RSU
+            receiver = findClosestNeighborToRsu();
+            if (receiver != null) {
+                double distanceToVeh = myPosition.distanceTo(receiver.position); // Calculate distance to the vehicle
+                distanceToRsu = distanceToVeh + receiver.getDistanceToRsu();
+                numberOfHops = receiver.getNumberOfHops() + 1;
+            }
+        }
+
+        // Create the VehInfoMsg with the closest RSU details
         VehInfoMsg message = new VehInfoMsg(
                 routing,
                 messageId,
@@ -238,10 +251,56 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 new Position(getOs().getPosition()),
                 this.vehHeading,
                 this.vehSpeed,
-                this.vehLane);
+                this.vehLane,
+                distanceToRsu,
+                numberOfHops);
 
         getOs().getAdHocModule().sendV2xMessage(message);
         getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
+    }
+
+    private NeighborInfo findClosestRsu(Position myPosition) {
+        if (knownRsuNeighbors.isEmpty()) {
+            getLog().infoSimTime(this, "No RSUs in range to check.");
+            return null;
+        }
+
+        NeighborInfo closestRsu = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (NeighborInfo rsu : knownRsuNeighbors.values()) {
+            double distance = myPosition.distanceTo(rsu.position);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestRsu = rsu;
+            }
+        }
+        return closestRsu;
+    }
+
+    private NeighborInfo findClosestNeighborToRsu() {
+        // If there are no neighbors, return null
+        if (knownVehicleNeighbors.isEmpty()) {
+            getLog().infoSimTime(this, "No RSUs in range to check.");
+            return null;
+        }
+
+        NeighborInfo closestNeighbor = null;
+        double minDistance = Double.MAX_VALUE; // Initially set to maximum possible value
+        int minHops = Integer.MAX_VALUE; // Initially set to maximum possible value
+
+        // Loop through all neighbors
+        for (NeighborInfo neighbor : knownVehicleNeighbors.values()) {
+            // Check if the neighbor is closer and has fewer hops
+            if (neighbor.distanceToRsu < minDistance ||
+                    (neighbor.distanceToRsu == minDistance && neighbor.numberOfHops < minHops)) {
+                minDistance = neighbor.distanceToRsu;
+                minHops = neighbor.numberOfHops;
+                closestNeighbor = neighbor; // Update the closest neighbor
+            }
+        }
+
+        return closestNeighbor; // Return the closest neighbor with fewer hops
     }
 
 }
