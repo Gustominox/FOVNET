@@ -31,9 +31,6 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     private final Map<String, NeighborInfo> knownVehicleNeighbors = new HashMap<>();
     private final Map<String, NeighborInfo> knownRsuNeighbors = new HashMap<>();
 
-    private final Set<String> receivedInfoMsgIds = new HashSet<>();
-    private final Map<String, VehInfoMsg> pendingInfoMessages = new HashMap<>();
-
     private int msgIdCounter = 0;
     private double vehHeading;
     private double vehSpeed;
@@ -92,11 +89,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             String senderId = fwdMsg.getSenderName();
             String msgKey = fwdMsg.getMessageId();
 
-            if (!receivedInfoMsgIds.contains(msgKey)) {
-                receivedInfoMsgIds.add(msgKey);
-                pendingInfoMessages.put(msgKey, fwdMsg);
-                getLog().infoSimTime(this, "Stored VehInfoMsg from " + senderId);
-            }
+            // TODO: Foward Info message if my id is eaul to fwrdID of msg
 
             // Atualizar vizinhança
             NeighborInfo neighbor = new NeighborInfo(
@@ -114,15 +107,6 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             } else {
                 knownVehicleNeighbors.put(senderId, neighbor);
             }
-        } else if (receivedMessage.getMessage() instanceof AckMsg) {
-            AckMsg ackMsg = (AckMsg) receivedMessage.getMessage();
-            String key = ackMsg.getMessageId();
-
-            if (pendingInfoMessages.containsKey(key)) {
-                pendingInfoMessages.remove(key);
-                getLog().infoSimTime(this,
-                        "Received AckMsg — removed message with key " + key + " from pendingForwardMessages");
-            }
         }
 
     }
@@ -133,45 +117,6 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
         knownVehicleNeighbors.values().removeIf(n -> (currentTime - n.lastSeen) > threshold);
         knownRsuNeighbors.values().removeIf(n -> (currentTime - n.lastSeen) > threshold);
-    }
-
-    private void tryForwardToNearestRsu() {
-        if (knownRsuNeighbors.isEmpty()) {
-            getLog().infoSimTime(this, "No RSUs in range to forward messages.");
-            return;
-        }
-
-        // Determinar RSU mais próximo
-        Position myPos = new Position(getOs().getPosition());
-        NeighborInfo closestRsu = null;
-        double minDistance = Double.MAX_VALUE;
-
-        for (NeighborInfo rsu : knownRsuNeighbors.values()) {
-            double distance = myPos.distanceTo(rsu.position);
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestRsu = rsu;
-            }
-        }
-
-        if (closestRsu == null)
-            return;
-
-        // Enviar todas as mensagens pendentes para o RSU mais próximo
-        for (VehInfoMsg originalMsg : pendingInfoMessages.values()) {
-
-            MessageRouting routing = getOs().getAdHocModule()
-                    .createMessageRouting()
-                    .viaChannel(AdHocChannel.CCH)
-                    .topoBroadCast();
-
-            VehInfoMsg msgCopy = originalMsg.clone(routing);
-
-            getOs().getAdHocModule().sendV2xMessage(msgCopy);
-            getLog().infoSimTime(this, "Forwarded message " + msgCopy.getMessageId() +
-                    " to RSU: " + closestRsu.id);
-        }
-
     }
 
     @Override
