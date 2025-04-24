@@ -80,16 +80,15 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             StopMessage stopMsg = (StopMessage) receivedMessage.getMessage();
             getLog().infoSimTime(this, "Received STOP message from " + stopMsg.getSenderName());
 
-            getOs().changeSpeedWithForcedAcceleration(3.0d, 5d);
+            getOs().changeSpeedWithForcedAcceleration(3.0d, 5d); // not implemented in SUMO
             getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
 
             // UPDATE MESSAGE
         } else if (receivedMessage.getMessage() instanceof VehInfoMsg) {
+            // Receive Info message
             VehInfoMsg fwdMsg = (VehInfoMsg) receivedMessage.getMessage();
             String senderId = fwdMsg.getSenderName();
             String msgKey = fwdMsg.getMessageId();
-
-            // TODO: Foward Info message if my id is eaul to fwrdID of msg
 
             // Atualizar vizinhança
             NeighborInfo neighbor = new NeighborInfo(
@@ -107,6 +106,12 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             } else {
                 knownVehicleNeighbors.put(senderId, neighbor);
             }
+            //
+            // TODO: Forward Info message if my id is equal to fwrdID of msg
+
+            // i need to change the Id of fowarder to next best neighbor (be RSU or Vehicle)
+
+            forwardMsg(receivedMessage);
         }
 
     }
