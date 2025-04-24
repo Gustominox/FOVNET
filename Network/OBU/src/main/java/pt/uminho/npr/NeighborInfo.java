@@ -22,6 +22,10 @@ public class NeighborInfo {
         this.lastSeen = lastSeen;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public double getDistanceToRsu() {
         return distanceToRsu;
     }

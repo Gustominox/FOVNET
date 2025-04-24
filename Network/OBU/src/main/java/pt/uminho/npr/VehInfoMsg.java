@@ -11,15 +11,6 @@ import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
 import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
 
-/*
- * timestamp
- * sendeID
- * sender position
- * sender heading
- * sender speed
- * sender lane
- */
-
 public class VehInfoMsg extends V2xMessage {
 
     private final EncodedPayload payload;
@@ -32,6 +23,7 @@ public class VehInfoMsg extends V2xMessage {
     private final int senderLaneId;
     private final double distanceToRsu; // Distance to nearest RSU
     private final int numberOfHops; // Number of hops for the message
+    private final String forwarderId;
 
     public VehInfoMsg(
             final MessageRouting routing,
@@ -43,7 +35,8 @@ public class VehInfoMsg extends V2xMessage {
             final double speed,
             final int laneId,
             final double distanceToRsu,
-            final int numberOfHops) {
+            final int numberOfHops,
+            String forwarderId) {
 
         super(routing);
         this.messageId = messageId;
@@ -55,6 +48,7 @@ public class VehInfoMsg extends V2xMessage {
         this.senderLaneId = laneId;
         this.distanceToRsu = distanceToRsu;
         this.numberOfHops = numberOfHops;
+        this.forwarderId = forwarderId;
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataOutputStream dos = new DataOutputStream(baos)) {
             // Write existing fields to the output stream
@@ -65,10 +59,9 @@ public class VehInfoMsg extends V2xMessage {
             dos.writeDouble(senderHeading);
             dos.writeDouble(senderSpeed);
             dos.writeInt(senderLaneId);
-
-            // Write the additional fields for distance and hops
-            dos.writeDouble(distanceToRsu); // Write distance to RSU
-            dos.writeInt(numberOfHops); // Write number of hops
+            dos.writeDouble(distanceToRsu);
+            dos.writeInt(numberOfHops);
+            dos.writeUTF(forwarderId);
 
             payload = new EncodedPayload(baos.toByteArray(), baos.size());
         } catch (IOException e) {
@@ -123,7 +116,8 @@ public class VehInfoMsg extends V2xMessage {
                 routing,
                 messageId, // ID original
                 timeStamp,
-                senderName, senderPos, senderHeading, senderSpeed, senderLaneId, distanceToRsu, numberOfHops);
+                senderName, senderPos, senderHeading, senderSpeed, senderLaneId, distanceToRsu, numberOfHops,
+                forwarderId);
     }
 
     @Override

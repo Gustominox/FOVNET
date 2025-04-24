@@ -227,18 +227,26 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         // Check closest RSU
         Position myPosition = new Position(getOs().getPosition()); // Vehicle's current position
         NeighborInfo receiver = findClosestRsu(myPosition);
-        double distanceToRsu = Double.MAX_VALUE; // Default if no RSU is found
+
+        /**
+         * Default values if no RSU info exists,
+         * this means that OBU as no info about Network map
+         */
+        double distanceToRsu = Double.MAX_VALUE;
         int numberOfHops = -1;
+        String forwarderId = "BROADCAST";
+
         if (receiver != null) {
             distanceToRsu = myPosition.distanceTo(receiver.position); // Calculate distance to the closest RSU
             numberOfHops = 0;
-
+            forwarderId = receiver.getId();
         } else { // search for neiborh Closest to RSU
             receiver = findClosestNeighborToRsu();
             if (receiver != null) {
                 double distanceToVeh = myPosition.distanceTo(receiver.position); // Calculate distance to the vehicle
                 distanceToRsu = distanceToVeh + receiver.getDistanceToRsu();
                 numberOfHops = receiver.getNumberOfHops() + 1;
+                forwarderId = receiver.getId();
             }
         }
 
@@ -253,7 +261,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 this.vehSpeed,
                 this.vehLane,
                 distanceToRsu,
-                numberOfHops);
+                numberOfHops,
+                forwarderId);
 
         getOs().getAdHocModule().sendV2xMessage(message);
         getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
