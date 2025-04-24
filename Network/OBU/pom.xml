@@ -30,7 +30,7 @@
               <configuration>
                   <archive>
                       <manifest>
-                          <mainClass>pt.uminho.npr.RSUApp</mainClass>
+                          <mainClass>pt.uminho.npr.VehApp</mainClass>
                       </manifest>
                   </archive>
               </configuration>
