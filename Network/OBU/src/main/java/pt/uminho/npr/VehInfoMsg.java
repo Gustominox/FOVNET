@@ -23,7 +23,7 @@ public class VehInfoMsg extends V2xMessage {
     private final int senderLaneId;
     private final double distanceToRsu; // Distance to nearest RSU
     private final int numberOfHops; // Number of hops for the message
-    private final String forwarderId;
+    private String forwarderId;
 
     public VehInfoMsg(
             final MessageRouting routing,
@@ -109,6 +109,14 @@ public class VehInfoMsg extends V2xMessage {
 
     public int getNumberOfHops() {
         return numberOfHops;
+    }
+
+    public void setForwarderId(String fwdId) {
+        forwarderId = fwdId;
+    }
+
+    public String getForwarderId() {
+        return forwarderId;
     }
 
     public VehInfoMsg clone(final MessageRouting routing) {
