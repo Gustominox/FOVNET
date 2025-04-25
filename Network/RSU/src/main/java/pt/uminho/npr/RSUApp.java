@@ -19,37 +19,40 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
         implements CommunicationApplication
 
 {
-
-    private static final double COMMUNICATION_RANGE = 140.0; // 140 metros
-    private final List<VehInfoMsg> receivedMessages = new CopyOnWriteArrayList<>();
-    private final static AdHocChannel vehSendChannel = AdHocChannel.SCH1;
-    private final long MsgDelay = 100 * TIME.MILLI_SECOND;
+    private final long MsgDelay = 200 * TIME.MILLI_SECOND;
+    private final int Power = 50;
+    private final double Distance = 140.0;
 
     @Override
     public void onStartup() {
-        getLog().infoSimTime(this, "Initialize application");
         getOs().getAdHocModule().enable(new AdHocModuleConfiguration()
                 .addRadio()
-                .channel(vehSendChannel)
-                .power(50)
+                .channel(AdHocChannel.CCH)
+                .power(Power)
+                .distance(Distance)
                 .create());
 
-        getLog().infoSimTime(this, "Activated WLAN Module");
-        // sample();
+        getLog().infoSimTime(this, "onStartup: Set up");
+        getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
+    }
+
+    @Override
+    public void processEvent(Event arg0) throws Exception {
+        getLog().infoSimTime(this, "processEvent");
+
+        // Example: Send a Awareness message every 5 seconds
+        // if (getOs().getSimulationTime() % (5 * TIME.SECOND) == 0) {
+        // sendVehInfoMsg();
+        // }
+
+        getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
+
     }
 
     @Override
     public void onShutdown() {
         getLog().infoSimTime(this, "Shutdown application");
 
-    }
-
-    @Override
-    public void processEvent(Event event) throws Exception {
-        getOs().getEventManager().addEvent(
-                getOs().getSimulationTime() + MsgDelay, this);
-        getLog().infoSimTime(this, "Sending out AdHoc broadcast");
-        // sendBroadcast();
     }
 
     @Override
@@ -71,27 +74,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
         if (receivedMsg.getMessage() instanceof VehInfoMsg) {
             VehInfoMsg msg = (VehInfoMsg) receivedMsg.getMessage();
 
-            // Verifica distância usando posição da RSU (implementação real usaria GPS)
-            Position RsuPos = new Position(getOs().getPosition());
-            Position MsgPos = msg.getSenderPosition();
-            double distance = MsgPos.distanceTo(RsuPos);
-
-            if (distance <= COMMUNICATION_RANGE) {
-                receivedMessages.add(msg);
-                getLog().info("Mensagem recebida de " + msg.getSenderName() +
-                        " a " + String.format("%.2f", distance) + " metros");
-
-            } else {
-                getLog().warn("Veículo fora de alcance: " +
-                        String.format("%.2f", distance) + "m (ID: " +
-                        msg.getSenderName() + ")");
-            }
         }
-    }
-
-    private double calculateDistance(GeoPoint a, GeoPoint b) {
-        return Math.sqrt(Math.pow(a.getAltitude() - b.getLatitude(), 2) +
-                Math.pow(a.getLongitude() - b.getLongitude(), 2));
     }
 
 }
