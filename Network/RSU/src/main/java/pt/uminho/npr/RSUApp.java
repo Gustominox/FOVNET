@@ -12,6 +12,9 @@ import org.eclipse.mosaic.lib.util.scheduling.Event;
 import org.eclipse.mosaic.fed.application.app.api.os.RoadSideUnitOperatingSystem;
 import org.eclipse.mosaic.rti.TIME;
 import org.eclipse.mosaic.lib.geo.GeoPoint;
+import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
+import pt.uminho.npr.VehInfoMsg;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 
@@ -40,10 +43,12 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     public void processEvent(Event arg0) throws Exception {
         getLog().infoSimTime(this, "processEvent");
 
-        // Example: Send a Awareness message every 5 seconds
-        // if (getOs().getSimulationTime() % (5 * TIME.SECOND) == 0) {
-        // sendVehInfoMsg();
-        // }
+        // Send a Beacon message every 1 second
+        if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
+            sendBeaconMsg();
+            getLog().infoSimTime(this, "Sent Beacon Message: ");
+
+        }
 
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
 
@@ -52,7 +57,6 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     @Override
     public void onShutdown() {
         getLog().infoSimTime(this, "Shutdown application");
-
     }
 
     @Override
@@ -75,6 +79,25 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
             VehInfoMsg msg = (VehInfoMsg) receivedMsg.getMessage();
 
         }
+    }
+
+    private void sendBeaconMsg() {
+        MessageRouting routing = getOs().getAdHocModule()
+                .createMessageRouting()
+                .viaChannel(AdHocChannel.CCH)
+                .topoBroadCast();
+
+        long time = getOs().getSimulationTime();
+        String rsuId = getOs().getId();
+
+        BeaconMsg message = new BeaconMsg(
+                routing,
+                time,
+                rsuId,
+                new Position(getOs().getPosition()));
+
+        getOs().getAdHocModule().sendV2xMessage(message);
+        getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
     }
 
 }
