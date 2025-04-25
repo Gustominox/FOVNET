@@ -109,14 +109,11 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             //
             // Forward Info message if my id is equal to fwrdID of msg
             if (fwdMsg.getForwarderId() == getOs().getId()) {
-                // i need to change the Id of fowarder to next best neighbor (be RSU or Vehicle)
 
                 /**
                  * Default values if no RSU info exists,
                  * this means that OBU as no info about Network map
                  */
-                double distanceToRsu = Double.MAX_VALUE;
-                int numberOfHops = -1;
                 String forwarderId = "BROADCAST";
 
                 // Check closest RSU
@@ -124,19 +121,14 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 NeighborInfo receiver = findClosestRsu(myPosition);
 
                 if (receiver != null) {
-                    distanceToRsu = myPosition.distanceTo(receiver.position); // Calculate distance to the closest RSU
-                    numberOfHops = 0;
                     forwarderId = receiver.getId();
                 } else { // search for neiborh Closest to RSU
                     receiver = findClosestNeighborToRsu();
                     if (receiver != null) {
-                        double distanceToVeh = myPosition.distanceTo(receiver.position); // Calculate distance to the
-                                                                                         // vehicle
-                        distanceToRsu = distanceToVeh + receiver.getDistanceToRsu();
-                        numberOfHops = receiver.getNumberOfHops() + 1;
                         forwarderId = receiver.getId();
                     }
                 }
+                // change the Id of forwarder to next best neighbor (be RSU or Vehicle)
 
                 fwdMsg.setForwarderId(forwarderId);
 
