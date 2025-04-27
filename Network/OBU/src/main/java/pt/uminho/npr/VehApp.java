@@ -83,7 +83,27 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             getOs().changeSpeedWithForcedAcceleration(3.0d, 5d); // not implemented in SUMO
             getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
 
-            // UPDATE MESSAGE
+        } else if (receivedMessage.getMessage() instanceof BeaconMsg) {
+
+            BeaconMsg beaconMsg = (BeaconMsg) receivedMessage.getMessage();
+            String senderId = beaconMsg.getSenderName();
+
+            getLog().infoSimTime(this, "Received Beacon message from " + beaconMsg.getSenderName());
+
+            NeighborInfo neighbor = new NeighborInfo(
+                    senderId,
+                    beaconMsg.getSenderPosition(),
+                    0.0,
+                    0,
+                    0.0,
+                    0.0,
+                    -1,
+                    currentTime);
+
+            getLog().infoSimTime(this, "Adding RSU: " + neighbor.toString() + " To Network Map");
+
+            knownRsuNeighbors.put(senderId, neighbor);
+
         } else if (receivedMessage.getMessage() instanceof VehInfoMsg) {
 
             // Receive Info message
@@ -101,15 +121,9 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                     fwdMsg.getLaneId(),
                     currentTime);
 
-            if (senderId.startsWith("rsu")) {
-                getLog().infoSimTime(this, "Adding RSU: " + neighbor.toString() + " To Network Map");
+            getLog().infoSimTime(this, "Adding Veh: " + neighbor.toString() + " To Network Map");
 
-                knownRsuNeighbors.put(senderId, neighbor);
-            } else {
-                getLog().infoSimTime(this, "Adding Veh: " + neighbor.toString() + " To Network Map");
-
-                knownVehicleNeighbors.put(senderId, neighbor);
-            }
+            knownVehicleNeighbors.put(senderId, neighbor);
             //
             // Forward Info message if my id is equal to fwrdID of msg
             if (fwdMsg.getForwarderId() == getOs().getId()) {
@@ -158,6 +172,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 getOs().getAdHocModule().sendV2xMessage(message);
                 getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
 
+                // TODO
                 /**
                  * If msgId is Broadcast, the sender doesnt know about any RSU's
                  * I should Apply the forwarding logic here
