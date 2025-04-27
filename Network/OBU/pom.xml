@@ -1,56 +1,58 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>pt.uminho.npr</groupId>
-  <artifactId>OBU</artifactId>
-  <packaging>jar</packaging>
-  <version>0.1</version>
-  
-  <name>OBU</name>
-  
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>21</maven.compiler.release>
-  </properties>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <build>
-      <plugins>
-          <!-- Compiler Plugin -->
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-compiler-plugin</artifactId>
-              <version>3.8.1</version>
-          </plugin>
+    <parent>
+        <groupId>pt.uminho.npr</groupId>
+        <artifactId>npr</artifactId>
+        <version>0.1</version>
+        <relativePath>../pom.xml</relativePath> <!-- Point to parent POM -->
+    </parent>
 
-          <!-- JAR Plugin (This sets the Main-Class in the Manifest) -->
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-jar-plugin</artifactId>
-              <version>3.2.2</version>
-              <configuration>
-                  <archive>
-                      <manifest>
-                          <mainClass>pt.uminho.npr.VehApp</mainClass>
-                      </manifest>
-                  </archive>
-              </configuration>
-          </plugin>
-      </plugins>
-  </build>
+    <artifactId>OBU</artifactId>
+    <packaging>jar</packaging>
 
-  <repositories> 
-      <repository>
-          <id>repo.eclipse.org</id>
-          <name>MOSAIC Repository</name>
-          <url>https://repo.eclipse.org/content/repositories/mosaic</url>
-      </repository>
-  </repositories>
-                 
-  <dependencies>
-      <dependency>
-          <groupId>org.eclipse.mosaic</groupId>
-          <artifactId>mosaic-application</artifactId>
-          <version>24.1</version>
-      </dependency>
-  </dependencies>
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>  <!-- Set the Java source version -->
+        <maven.compiler.target>21</maven.compiler.target>  <!-- Set the Java target version -->
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- Compiler Plugin to use Java 21 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>21</source>  <!-- Java source version -->
+                    <target>21</target>  <!-- Java target version -->
+                </configuration>
+            </plugin>
+
+            <!-- JAR Plugin for OBU module -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
+                <executions>
+                    <execution>
+                        <id>obu-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>OBU-0.1</finalName> <!-- Main JAR name -->
+                            <archive>
+                                <manifest>
+                                    <mainClass>pt.uminho.npr.VehApp</mainClass> <!-- OBU main class -->
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
