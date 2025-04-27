@@ -304,7 +304,10 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                     (neighbor.distanceToRsu == minDistance && neighbor.numberOfHops < minHops)) {
                 minDistance = neighbor.distanceToRsu;
                 minHops = neighbor.numberOfHops;
-                closestNeighbor = neighbor; // Update the closest neighbor
+                if (minHops < 0)
+                    closestNeighbor = null; // If the closest neihbor doesnt know of any RSU then chose no neighbor
+                else
+                    closestNeighbor = neighbor; // Update the closest neighbor
             }
         }
 
