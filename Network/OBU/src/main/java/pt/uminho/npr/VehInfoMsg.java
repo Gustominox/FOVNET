@@ -130,14 +130,18 @@ public class VehInfoMsg extends V2xMessage {
 
     @Override
     public String toString() {
-        return "VehInfoMessage{" +
-                "timeStamp=" + timeStamp +
-                ", senderName=" + senderName +
-                ", senderPosition=" + senderPos +
-                ", senderHeading=" + senderHeading +
-                ", senderSpeed=" + senderSpeed +
-                ", senderLaneId=" + senderLaneId +
-                ", distanceToRsu=" + distanceToRsu +
-                ", numberOfHops=" + numberOfHops + '}';
+        return String.format(
+                "VehInfoMsg {messageId='%s', timeStamp=%d, senderName='%s', senderPosition=%s, senderHeading=%.2f, senderSpeed=%.2f, senderLaneId=%d, distanceToRsu=%.2f, numberOfHops=%d, forwarderId='%s'}",
+                messageId,
+                timeStamp,
+                senderName,
+                senderPos != null ? senderPos.toString() : "null", // Handling null for senderPos
+                senderHeading,
+                senderSpeed,
+                senderLaneId,
+                distanceToRsu,
+                numberOfHops,
+                forwarderId);
     }
+
 }
