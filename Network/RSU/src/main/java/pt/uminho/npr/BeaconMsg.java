@@ -69,10 +69,12 @@ public class BeaconMsg extends V2xMessage {
 
     @Override
     public String toString() {
-        return "VehInfoMessage{" +
-                "timeStamp=" + timeStamp +
-                ", senderName=" + senderName +
-                ", senderPosition=" + senderPos +
-                +'}';
+        return String.format(
+                "BeaconMsg {timeStamp=%d, senderName='%s', senderPosition=%s}",
+                timeStamp,
+                senderName,
+                senderPos != null ? senderPos.toString() : "null" // Handling null for senderPos
+        );
     }
+
 }

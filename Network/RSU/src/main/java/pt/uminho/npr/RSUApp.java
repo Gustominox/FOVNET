@@ -77,6 +77,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     public void onMessageReceived(ReceivedV2xMessage receivedMsg) {
         if (receivedMsg.getMessage() instanceof VehInfoMsg) {
             VehInfoMsg msg = (VehInfoMsg) receivedMsg.getMessage();
+            getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
         }
     }
@@ -97,7 +98,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                 new Position(getOs().getPosition()));
 
         getOs().getAdHocModule().sendV2xMessage(message);
-        getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
+        getLog().infoSimTime(this, "Sent BeaconMsg " + message.toString());
     }
 
 }
