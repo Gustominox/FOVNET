@@ -33,4 +33,19 @@ public class NeighborInfo {
     public int getNumberOfHops() {
         return numberOfHops;
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "NeighborInfo {id='%s', position=%s, distanceToRsu=%.2f, numberOfHops=%d, heading=%.2f, speed=%.2f, lane=%d, lastSeen=%d}",
+                id,
+                position != null ? position.toString() : "null", // Handling null for position
+                distanceToRsu,
+                numberOfHops,
+                heading,
+                speed,
+                lane,
+                lastSeen);
+    }
+
 }
