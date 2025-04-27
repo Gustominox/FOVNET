@@ -57,7 +57,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
     @Override
     public void processEvent(Event arg0) throws Exception {
-        getLog().infoSimTime(this, "processEvent");
+        // getLog().infoSimTime(this, "processEvent");
         cleanupOldNeighbors();
 
         // Example: Send a Awareness message every 1 second
@@ -85,10 +85,10 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
             // UPDATE MESSAGE
         } else if (receivedMessage.getMessage() instanceof VehInfoMsg) {
+
             // Receive Info message
             VehInfoMsg fwdMsg = (VehInfoMsg) receivedMessage.getMessage();
             String senderId = fwdMsg.getSenderName();
-            String msgKey = fwdMsg.getMessageId();
 
             // Atualizar vizinhança
             NeighborInfo neighbor = new NeighborInfo(
@@ -130,10 +130,28 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 }
                 // change the Id of forwarder to next best neighbor (be RSU or Vehicle)
 
-                fwdMsg.setForwarderId(forwarderId);
+                MessageRouting routing = getOs().getAdHocModule()
+                        .createMessageRouting()
+                        .viaChannel(AdHocChannel.CCH) // Send on Control Channel
+                        .topoBroadCast(); // Broadcast to nearby vehicles
 
-                getOs().getAdHocModule().sendV2xMessage(fwdMsg);
-                getLog().infoSimTime(this, "Sent VehInfoMsg: " + fwdMsg.toString());
+                // Create the VehInfoMsg that is a copy of the message received, only changing
+                // the forwarder Id
+                VehInfoMsg message = new VehInfoMsg(
+                        routing,
+                        fwdMsg.getMessageId(),
+                        fwdMsg.getTime(),
+                        fwdMsg.getSenderName(),
+                        fwdMsg.getSenderPosition(),
+                        fwdMsg.getHeading(),
+                        fwdMsg.getSpeed(),
+                        fwdMsg.getLaneId(),
+                        fwdMsg.getDistanceToRsu(),
+                        fwdMsg.getNumberOfHops(),
+                        forwarderId);
+
+                getOs().getAdHocModule().sendV2xMessage(message);
+                getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
 
             }
 
