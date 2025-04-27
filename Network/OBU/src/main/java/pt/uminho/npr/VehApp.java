@@ -102,13 +102,18 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                     currentTime);
 
             if (senderId.startsWith("rsu")) {
+                getLog().infoSimTime(this, "Adding RSU: " + neighbor.toString() + " To Network Map");
+
                 knownRsuNeighbors.put(senderId, neighbor);
             } else {
+                getLog().infoSimTime(this, "Adding Veh: " + neighbor.toString() + " To Network Map");
+
                 knownVehicleNeighbors.put(senderId, neighbor);
             }
             //
             // Forward Info message if my id is equal to fwrdID of msg
             if (fwdMsg.getForwarderId() == getOs().getId()) {
+                getLog().infoSimTime(this, "Forwarding Message ");
 
                 /**
                  * Default values if no RSU info exists,
