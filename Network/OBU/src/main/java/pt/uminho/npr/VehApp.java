@@ -158,6 +158,15 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 getOs().getAdHocModule().sendV2xMessage(message);
                 getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
 
+                /**
+                 * If msgId is Broadcast, the sender doesnt know about any RSU's
+                 * I should Apply the forwarding logic here
+                 * 1. try to find RSU
+                 * 2. if not find veh with closest
+                 * 3. if not BROADCAST
+                 */
+            } else if (fwdMsg.getForwarderId() == "BROADCAST") {
+
             }
 
         }
