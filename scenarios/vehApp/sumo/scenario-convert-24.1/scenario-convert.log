@@ -1,0 +1,12 @@
+18:16:42.253 INFO  - Call with parameters: 
+18:18:48.152 INFO  - Call with parameters: --sumo2db -i teste_tp.net.xml
+18:18:48.180 INFO  - 
+18:18:48.180 ERROR - 
+18:18:48.180 ERROR - Given net or route file file at 'teste_tp.net.xml' not found.
+java.lang.IllegalArgumentException: Given net or route file file at 'teste_tp.net.xml' not found.
+	at com.dcaiti.mosaic.tools.scenarioconvert.config.OptionsValidator.validateImportOperations(OptionsValidator.java:77)
+	at com.dcaiti.mosaic.tools.scenarioconvert.config.OptionsValidator.validate(OptionsValidator.java:31)
+	at com.dcaiti.mosaic.tools.scenarioconvert.config.OptionsParser.parse(OptionsParser.java:47)
+	at com.dcaiti.mosaic.tools.scenarioconvert.core.Starter.main(Starter.java:29)
+18:18:48.182 ERROR - 
+18:18:48.182 ERROR - Please use the -h option to get usage help printed.
