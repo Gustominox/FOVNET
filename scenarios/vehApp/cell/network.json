@@ -37,7 +37,7 @@
     },
     "servers": [
         {
-            "id": "WeatherServer",
+            "id": "FOG_SERVER",
             "uplink": {
                 "delay": {
                     "type": "ConstantDelay",

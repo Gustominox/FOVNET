@@ -53,7 +53,7 @@
             "name": "FOG",
             "group": "FOG_SERVER",
             "applications": [
-                "pt.uminho.npr.RSUApp"
+                "pt.uminho.npr.FOGApp"
             ]
         }
     ],
