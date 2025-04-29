@@ -83,7 +83,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 
             MessageRouting routing = getOs().getCellModule().createMessageRouting()
                     .tcp()
-                    .destination("FOG")
+                    .destination("server_0")
                     .topological()
                     .build();
 
