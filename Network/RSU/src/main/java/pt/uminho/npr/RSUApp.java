@@ -35,6 +35,8 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                 .distance(Distance)
                 .create());
 
+        getOs().getCellModule().enable();
+
         getLog().infoSimTime(this, "onStartup: Set up");
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
     }
@@ -78,6 +80,14 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
         if (receivedMsg.getMessage() instanceof VehInfoMsg) {
             VehInfoMsg msg = (VehInfoMsg) receivedMsg.getMessage();
             getLog().infoSimTime(this, "Received msg: " + msg.toString());
+
+            MessageRouting routing = getOs().getCellModule().createMessageRouting()
+                    .tcp()
+                    .destination("FOG")
+                    .topological()
+                    .build();
+
+            getOs().getCellModule().sendV2xMessage(msg.clone(routing));
 
         }
     }

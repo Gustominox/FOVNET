@@ -1,23 +1,22 @@
 package pt.uminho.npr;
 
-import org.eclipse.mosaic.fed.application.app.api.CommunicationApplication;
-import org.eclipse.mosaic.fed.application.app.AbstractApplication;
-import org.eclipse.mosaic.fed.application.ambassador.simulation.communication.ReceivedV2xMessage;
-import org.eclipse.mosaic.fed.application.ambassador.simulation.communication.ReceivedAcknowledgement;
 import org.eclipse.mosaic.fed.application.ambassador.simulation.communication.CamBuilder;
+import org.eclipse.mosaic.fed.application.ambassador.simulation.communication.ReceivedAcknowledgement;
+import org.eclipse.mosaic.fed.application.ambassador.simulation.communication.ReceivedV2xMessage;
+import org.eclipse.mosaic.fed.application.app.AbstractApplication;
+import org.eclipse.mosaic.fed.application.app.api.CommunicationApplication;
+import org.eclipse.mosaic.fed.application.app.api.os.ServerOperatingSystem;
 import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
-import org.eclipse.mosaic.lib.enums.AdHocChannel;
-import org.eclipse.mosaic.fed.application.ambassador.simulation.communication.AdHocModuleConfiguration;
-import org.eclipse.mosaic.lib.util.scheduling.Event;
-import org.eclipse.mosaic.fed.application.app.api.os.RoadSideUnitOperatingSystem;
-import org.eclipse.mosaic.rti.TIME;
-import org.eclipse.mosaic.lib.geo.GeoPoint;
+import org.eclipse.mosaic.lib.objects.v2x.GenericV2xMessage;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
+import org.eclipse.mosaic.lib.util.scheduling.Event;
+import org.eclipse.mosaic.lib.util.scheduling.EventProcessor;
+import org.eclipse.mosaic.rti.TIME;
 
 import java.util.List;
 
 public class FOGApp extends AbstractApplication<ServerOperatingSystem> implements CommunicationApplication {
-    
+
     private final long MsgDelay = 200 * TIME.MILLI_SECOND;
     private final int Power = 50;
     private final double Distance = 140.0;
@@ -28,14 +27,12 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
 
         getLog().infoSimTime(this, "Setup FOG server {} at time {}", getOs().getId(), getOs().getSimulationTime());
 
-
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
     }
 
     @Override
     public void processEvent(Event arg0) throws Exception {
         getLog().infoSimTime(this, "processEvent");
-        
 
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
 
@@ -69,24 +66,19 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
         }
     }
 
-
     private void sendStopMessage() {
         long time = getOs().getSimulationTime();
 
-            
-        
-        
         MessageRouting routing = getOs().getCellModule().createMessageRouting()
-                    .tcp()
-                    .destination("rsu_0")
-                    .topological()
-                    .build();
+                .tcp()
+                .destination("rsu_0")
+                .topological()
+                .build();
 
-        StopMessage message = new StopMessage(routing, time, getOs().getId(), getOs().getPosition());
+        StopMessage message = new StopMessage(routing, time, getOs().getId());
 
         getOs().getCellModule().sendV2xMessage(message);
 
-        
         getLog().infoSimTime(this, "Sent StopMessage: " + message.toString());
     }
 
