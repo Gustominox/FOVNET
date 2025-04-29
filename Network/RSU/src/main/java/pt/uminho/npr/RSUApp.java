@@ -85,8 +85,9 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     private void sendBeaconMsg() {
         MessageRouting routing = getOs().getAdHocModule()
                 .createMessageRouting()
-                .viaChannel(AdHocChannel.CCH)
-                .topoBroadCast();
+                .channel(AdHocChannel.CCH) // Send on Control Channel
+                .broadcast()
+                .build();
 
         long time = getOs().getSimulationTime();
         String rsuId = getOs().getId();

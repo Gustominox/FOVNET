@@ -151,8 +151,9 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
                 MessageRouting routing = getOs().getAdHocModule()
                         .createMessageRouting()
-                        .viaChannel(AdHocChannel.CCH) // Send on Control Channel
-                        .topoBroadCast(); // Broadcast to nearby vehicles
+                        .channel(AdHocChannel.CCH) // Send on Control Channel
+                        .broadcast()
+                        .build(); // Broadcast to nearby vehicles
 
                 // Create the VehInfoMsg that is a copy of the message received, only changing
                 // the forwarder Id
@@ -224,9 +225,9 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     private void sendStopMessage() {
         MessageRouting routing = getOs().getAdHocModule()
                 .createMessageRouting()
-                .viaChannel(AdHocChannel.CCH) // Send on Control Channel
-                .topoBroadCast(); // Broadcast to nearby vehicles
-
+                .channel(AdHocChannel.CCH) // Send on Control Channel
+                .broadcast()
+                .build();
         long time = getOs().getSimulationTime();
 
         StopMessage message = new StopMessage(routing, time, getOs().getId(), getOs().getPosition(), this.vehHeading,
@@ -239,8 +240,9 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     private void sendVehInfoMsg() {
         MessageRouting routing = getOs().getAdHocModule()
                 .createMessageRouting()
-                .viaChannel(AdHocChannel.CCH)
-                .topoBroadCast();
+                .channel(AdHocChannel.CCH) // Send on Control Channel
+                .broadcast()
+                .build();
 
         long time = getOs().getSimulationTime();
         String carId = getOs().getId();
