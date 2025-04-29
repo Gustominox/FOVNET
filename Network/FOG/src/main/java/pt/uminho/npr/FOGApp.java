@@ -13,26 +13,21 @@ import org.eclipse.mosaic.fed.application.app.api.os.RoadSideUnitOperatingSystem
 import org.eclipse.mosaic.rti.TIME;
 import org.eclipse.mosaic.lib.geo.GeoPoint;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
-import pt.uminho.npr.VehInfoMsg;
 
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 
 public class FOGApp extends AbstractApplication<ServerOperatingSystem> implements CommunicationApplication {
+    
     private final long MsgDelay = 200 * TIME.MILLI_SECOND;
     private final int Power = 50;
     private final double Distance = 140.0;
 
     @Override
     public void onStartup() {
-        // getOs().getAdHocModule().enable(new AdHocModuleConfiguration()
-        //         .addRadio()
-        //         .channel(AdHocChannel.CCH)
-        //         .power(Power)
-        //         .distance(Distance)
-        //         .create());
+        getOs().getCellModule().enable();
 
-        getLog().infoSimTime(this, "onStartup: Set up");
+        getLog().infoSimTime(this, "Setup FOG server {} at time {}", getOs().getId(), getOs().getSimulationTime());
+
 
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
     }
@@ -40,7 +35,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
     @Override
     public void processEvent(Event arg0) throws Exception {
         getLog().infoSimTime(this, "processEvent");
-
+        
 
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
 
@@ -72,6 +67,27 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
             getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
         }
+    }
+
+
+    private void sendStopMessage() {
+        long time = getOs().getSimulationTime();
+
+            
+        
+        
+        MessageRouting routing = getOs().getCellModule().createMessageRouting()
+                    .tcp()
+                    .destination("rsu_0")
+                    .topological()
+                    .build();
+
+        StopMessage message = new StopMessage(routing, time, getOs().getId(), getOs().getPosition());
+
+        getOs().getCellModule().sendV2xMessage(message);
+
+        
+        getLog().infoSimTime(this, "Sent StopMessage: " + message.toString());
     }
 
 }
