@@ -152,7 +152,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 MessageRouting routing = getOs().getAdHocModule()
                         .createMessageRouting()
                         .channel(AdHocChannel.CCH) // Send on Control Channel
-                        .broadcast()
+                        .topological().broadcast()
                         .build(); // Broadcast to nearby vehicles
 
                 // Create the VehInfoMsg that is a copy of the message received, only changing
@@ -226,7 +226,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         MessageRouting routing = getOs().getAdHocModule()
                 .createMessageRouting()
                 .channel(AdHocChannel.CCH) // Send on Control Channel
-                .broadcast()
+                .topological().broadcast()
                 .build();
         long time = getOs().getSimulationTime();
 
@@ -241,7 +241,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         MessageRouting routing = getOs().getAdHocModule()
                 .createMessageRouting()
                 .channel(AdHocChannel.CCH) // Send on Control Channel
-                .broadcast()
+                .topological().broadcast()
                 .build();
 
         long time = getOs().getSimulationTime();

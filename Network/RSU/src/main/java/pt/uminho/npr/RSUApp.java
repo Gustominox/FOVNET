@@ -86,7 +86,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
         MessageRouting routing = getOs().getAdHocModule()
                 .createMessageRouting()
                 .channel(AdHocChannel.CCH) // Send on Control Channel
-                .broadcast()
+                .topological().broadcast()
                 .build();
 
         long time = getOs().getSimulationTime();
