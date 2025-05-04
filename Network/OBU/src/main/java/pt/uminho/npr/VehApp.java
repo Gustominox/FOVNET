@@ -10,6 +10,7 @@ import org.eclipse.mosaic.fed.application.app.api.VehicleApplication;
 import org.eclipse.mosaic.fed.application.app.api.os.VehicleOperatingSystem;
 import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
 import org.eclipse.mosaic.lib.enums.AdHocChannel;
+import org.eclipse.mosaic.lib.enums.VehicleStopMode;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.vehicle.VehicleData;
 import org.eclipse.mosaic.lib.util.scheduling.Event;
@@ -27,6 +28,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     private final long MsgDelay = 200 * TIME.MILLI_SECOND;
     private final int Power = 50;
     private final double Distance = 140.0;
+    private static final double DECELERATION_NORMAL = 4.0; // m/s²
+    private static final double DECELERATION_EMERGENCY = 9.0; // m/s²
 
     private final Map<String, NeighborInfo> knownVehicleNeighbors = new HashMap<>();
     private final Map<String, NeighborInfo> knownRsuNeighbors = new HashMap<>();
@@ -57,7 +60,6 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
     @Override
     public void processEvent(Event arg0) throws Exception {
-        // getLog().infoSimTime(this, "processEvent");
         cleanupOldNeighbors();
 
         // Example: Send a Awareness message every 1 second
@@ -100,14 +102,22 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
         if (receivedMessage.getMessage() instanceof SlowMessage) {
 
-            SlowMessage stopMsg = (SlowMessage) receivedMessage.getMessage();
-            getLog().infoSimTime(this, "Received SLOW message from " + stopMsg.getSenderName());
+            SlowMessage slowMsg = (SlowMessage) receivedMessage.getMessage();
+            getLog().infoSimTime(this, "Received SLOW message from " + slowMsg.getSenderName());
 
-            float targetSpeed = (float) (stopMsg.getTargetSpeed() / 3.6); // m/s
+            float targetSpeed = (float) (slowMsg.getTargetSpeed() / 3.6); // m/s
 
-            getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, 4.0));
+            getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, DECELERATION_NORMAL));
 
-            getLog().infoSimTime(this, "Vehicle is stopping due to received SLOW command.");
+            getLog().infoSimTime(this, "Vehicle is slowing due to received SLOW command.");
+
+        } else if (receivedMessage.getMessage() instanceof StopMessage) {
+
+            StopMessage stopMsg = (StopMessage) receivedMessage.getMessage();
+            getLog().infoSimTime(this, "Received STOP message from " + stopMsg.getSenderName());
+
+            getOs().stopNow(VehicleStopMode.PARK_ON_ROADSIDE, slowDownTime(this.vehSpeed, 0, DECELERATION_EMERGENCY));
+            getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
 
         } else if (receivedMessage.getMessage() instanceof BeaconMsg) {
 
