@@ -38,6 +38,7 @@ public class SlowMessage extends V2xMessage implements Message {
                 final DataOutputStream dos = new DataOutputStream(baos)) {
             dos.writeLong(timeStamp);
             dos.writeUTF(senderName);
+            dos.writeUTF(receiverName);
 
             payload = new EncodedPayload(baos.toByteArray(), baos.size());
         } catch (IOException e) {
