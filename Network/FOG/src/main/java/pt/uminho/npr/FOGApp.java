@@ -7,6 +7,8 @@ import org.eclipse.mosaic.fed.application.app.AbstractApplication;
 import org.eclipse.mosaic.fed.application.app.api.CommunicationApplication;
 import org.eclipse.mosaic.fed.application.app.api.os.ServerOperatingSystem;
 import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
+import org.eclipse.mosaic.lib.objects.road.IConnection;
+import org.eclipse.mosaic.lib.objects.road.INode;
 import org.eclipse.mosaic.lib.objects.v2x.GenericV2xMessage;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.util.scheduling.Event;
@@ -14,6 +16,7 @@ import org.eclipse.mosaic.lib.util.scheduling.EventProcessor;
 import org.eclipse.mosaic.rti.TIME;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FOGApp extends AbstractApplication<ServerOperatingSystem> implements CommunicationApplication {
 
@@ -62,6 +65,21 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
         if (receivedMsg.getMessage() instanceof VehInfoMsg) {
             VehInfoMsg msg = (VehInfoMsg) receivedMsg.getMessage();
             getLog().infoSimTime(this, "Received msg: " + msg.toString());
+            // // IConnection connection = getOs().getRoutingModule()
+            // // .getClosestRoadPosition(msg.getSenderPosition().toGeoPoint())
+            // // .getConnection();
+
+            // // List<String> ids = connection.getOutgoingConnections()
+            // // .stream()
+            // // .map(IConnection::getId)
+            // // .collect(Collectors.toList());
+            // getLog().infoSimTime(this, "Connection Id: " + connection.getId());
+            // getLog().infoSimTime(this, "Outgoing Connections: " + ids);
+            // getLog().infoSimTime(this, "Incoming Connections: " +
+            // connection.getIncomingConnections());
+            double speedLimit = 30;
+            if (msg.getSpeed() > speedLimit)
+                sendSlowMessage(msg.getForwarderId());
 
         }
     }
@@ -80,6 +98,22 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
         getOs().getCellModule().sendV2xMessage(message);
 
         getLog().infoSimTime(this, "Sent StopMessage: " + message.toString());
+    }
+
+    private void sendSlowMessage(String rsu) {
+        long time = getOs().getSimulationTime();
+
+        MessageRouting routing = getOs().getCellModule().createMessageRouting()
+                .tcp()
+                .destination(rsu)
+                .topological()
+                .build();
+
+        SlowMessage message = new SlowMessage(routing, time, getOs().getId());
+
+        getOs().getCellModule().sendV2xMessage(message);
+
+        getLog().infoSimTime(this, "Sent SlowMessage: " + message.toString());
     }
 
 }
