@@ -81,10 +81,16 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
         return msg instanceof SlowMessage; // || msg instanceof FastMessage;
     }
 
+    private boolean isNetworkMessage(V2xMessage msg) {
+        return msg instanceof VehInfoMsg; // || msg instanceof FastMessage;
+    }
+
     @Override
     public void onMessageReceived(ReceivedV2xMessage receivedMsg) {
-        if (receivedMsg.getMessage() instanceof VehInfoMsg) {
-            VehInfoMsg msg = (VehInfoMsg) receivedMsg.getMessage();
+        if (isNetworkMessage(receivedMsg.getMessage())) {
+
+            Message msg = (Message) receivedMsg.getMessage();
+
             getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
             MessageRouting routing = getOs().getCellModule().createMessageRouting()
@@ -93,24 +99,11 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                     .topological()
                     .build();
 
-            getOs().getCellModule().sendV2xMessage(msg.clone(routing));
-
-        } else if (receivedMsg.getMessage() instanceof SlowMessage) {
-            SlowMessage msg = (SlowMessage) receivedMsg.getMessage();
-
-            getLog().infoSimTime(this, "Received msg: " + msg.toString());
-
-            MessageRouting routing = getOs().getAdHocModule()
-                    .createMessageRouting()
-                    .channel(AdHocChannel.CCH)
-                    .topological().broadcast()
-                    .build();
-
-            getOs().getAdHocModule().sendV2xMessage(msg.clone(routing));
+            getOs().getCellModule().sendV2xMessage((V2xMessage) msg.clone(routing));
 
         } else if (isFogMessage(receivedMsg.getMessage())) {
 
-            V2xMessage msg = (V2xMessage) receivedMsg.getMessage();
+            Message msg = (Message) receivedMsg.getMessage();
 
             getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
@@ -120,7 +113,12 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                     .topological().broadcast()
                     .build();
 
-            getOs().getAdHocModule().sendV2xMessage(msg.clone(routing));
+            getOs().getAdHocModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+
+        } else {
+            Message msg = (Message) receivedMsg.getMessage();
+
+            getLog().infoSimTime(this, "Undefined behavior for " + msg.toString());
 
         }
     }
