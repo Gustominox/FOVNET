@@ -251,7 +251,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
         /**
          * Default values if no RSU info exists,
-         * this means that OBU as no info about Network map
+         * this would mean that OBU as no info about Network map
          */
 
         double distanceToRsu = Double.MAX_VALUE;
