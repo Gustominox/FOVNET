@@ -207,7 +207,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         getLog().infoSimTime(this, "onVehicleUpdated");
 
         this.vehHeading = updatedVehicleData.getHeading().doubleValue();
-        this.vehSpeed = updatedVehicleData.getSpeed();
+        double speedKmh = updatedVehicleData.getSpeed() * 3.6;
+        this.vehSpeed = Double.parseDouble(String.format("%.2f", speedKmh));
         this.vehLane = updatedVehicleData.getRoadPosition().getLaneIndex();
     }
 
