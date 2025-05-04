@@ -13,6 +13,8 @@ import org.eclipse.mosaic.fed.application.app.api.os.RoadSideUnitOperatingSystem
 import org.eclipse.mosaic.rti.TIME;
 import org.eclipse.mosaic.lib.geo.GeoPoint;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
+import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
+
 import pt.uminho.npr.VehInfoMsg;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -75,6 +77,10 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     public void onCamBuilding(CamBuilder camBuilder) {
     }
 
+    private boolean isFogMessage(V2xMessage msg) {
+        return msg instanceof SlowMessage; // || msg instanceof FastMessage;
+    }
+
     @Override
     public void onMessageReceived(ReceivedV2xMessage receivedMsg) {
         if (receivedMsg.getMessage() instanceof VehInfoMsg) {
@@ -89,13 +95,40 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 
             getOs().getCellModule().sendV2xMessage(msg.clone(routing));
 
+        } else if (receivedMsg.getMessage() instanceof SlowMessage) {
+            SlowMessage msg = (SlowMessage) receivedMsg.getMessage();
+
+            getLog().infoSimTime(this, "Received msg: " + msg.toString());
+
+            MessageRouting routing = getOs().getAdHocModule()
+                    .createMessageRouting()
+                    .channel(AdHocChannel.CCH)
+                    .topological().broadcast()
+                    .build();
+
+            getOs().getAdHocModule().sendV2xMessage(msg.clone(routing));
+
+        } else if (isFogMessage(receivedMsg.getMessage())) {
+
+            V2xMessage msg = (V2xMessage) receivedMsg.getMessage();
+
+            getLog().infoSimTime(this, "Received msg: " + msg.toString());
+
+            MessageRouting routing = getOs().getAdHocModule()
+                    .createMessageRouting()
+                    .channel(AdHocChannel.CCH)
+                    .topological().broadcast()
+                    .build();
+
+            getOs().getAdHocModule().sendV2xMessage(msg.clone(routing));
+
         }
     }
 
     private void sendBeaconMsg() {
         MessageRouting routing = getOs().getAdHocModule()
                 .createMessageRouting()
-                .channel(AdHocChannel.CCH) // Send on Control Channel
+                .channel(AdHocChannel.CCH)
                 .topological().broadcast()
                 .build();
 
