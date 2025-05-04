@@ -69,19 +69,43 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
     }
 
+    /**
+     * Calculates the time in nanoseconds required to decelerate from an initial
+     * speed to a final speed.
+     *
+     * @param startingSpeed Initial speed in km/h
+     * @param finalSpeed    Final speed in km/h
+     * @param deceleration  Deceleration in m/s²
+     * @return Deceleration time in nanoseconds (long)
+     */
+
+    public long slowDownTime(double startingSpeed, double finalSpeed, double deceleration) {
+        if (startingSpeed < finalSpeed) {
+            getLog().infoSimTime(this, "Starting speed must be greater than or equal to final speed.");
+        }
+
+        double vStart = startingSpeed / 3.6; // m/s
+        double vEnd = finalSpeed / 3.6; // m/s
+
+        double timeSeconds = (vStart - vEnd) / deceleration; // seconds
+
+        return (long) (timeSeconds * 1_000_000_000); // nanoseconds
+    }
+
     @Override
     public void onMessageReceived(ReceivedV2xMessage receivedMessage) {
         getLog().infoSimTime(this, "onMessageReceived");
 
         long currentTime = getOs().getSimulationTime();
 
-        if (receivedMessage.getMessage() instanceof StopMessage) {
+        if (receivedMessage.getMessage() instanceof SlowMessage) {
 
-            StopMessage stopMsg = (StopMessage) receivedMessage.getMessage();
-            getLog().infoSimTime(this, "Received STOP message from " + stopMsg.getSenderName());
+            SlowMessage stopMsg = (SlowMessage) receivedMessage.getMessage();
+            getLog().infoSimTime(this, "Received SLOW message from " + stopMsg.getSenderName());
+            float targetSpeed = (float) (30 / 3.6);
+            getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, 30 / 3.6, 4.0));
 
-            getOs().changeSpeedWithForcedAcceleration(3.0d, 5d); // not implemented in SUMO
-            getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
+            getLog().infoSimTime(this, "Vehicle is stopping due to received SLOW command.");
 
         } else if (receivedMessage.getMessage() instanceof BeaconMsg) {
 
@@ -239,6 +263,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     }
 
     private void sendVehInfoMsg() {
+
         MessageRouting routing = getOs().getAdHocModule()
                 .createMessageRouting()
                 .channel(AdHocChannel.CCH) // Send on Control Channel
