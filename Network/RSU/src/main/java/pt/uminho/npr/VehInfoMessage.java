@@ -11,7 +11,7 @@ import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
 import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
 
-public class VehInfoMsg extends V2xMessage implements Message{
+public class VehInfoMessage extends V2xMessage implements Message {
 
     private final EncodedPayload payload;
     private final String messageId;
@@ -25,7 +25,7 @@ public class VehInfoMsg extends V2xMessage implements Message{
     private final int numberOfHops; // Number of hops for the message
     private String forwarderId;
 
-    public VehInfoMsg(
+    public VehInfoMessage(
             final MessageRouting routing,
             final String messageId,
             final long time,
@@ -119,8 +119,8 @@ public class VehInfoMsg extends V2xMessage implements Message{
         return forwarderId;
     }
 
-    public VehInfoMsg clone(final MessageRouting routing) {
-        return new VehInfoMsg(
+    public VehInfoMessage clone(final MessageRouting routing) {
+        return new VehInfoMessage(
                 routing,
                 messageId, // ID original
                 timeStamp,
