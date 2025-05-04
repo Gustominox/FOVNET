@@ -78,7 +78,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     }
 
     private boolean isFogMessage(V2xMessage msg) {
-        return msg instanceof SlowMessage; // || msg instanceof FastMessage;
+        return msg instanceof SlowMessage || msg instanceof StopMessage;
     }
 
     private boolean isNetworkMessage(V2xMessage msg) {
