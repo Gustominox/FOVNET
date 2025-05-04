@@ -15,7 +15,7 @@ import org.eclipse.mosaic.lib.geo.GeoPoint;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
 
-import pt.uminho.npr.VehInfoMsg;
+import pt.uminho.npr.VehInfoMessage;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
@@ -82,7 +82,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     }
 
     private boolean isNetworkMessage(V2xMessage msg) {
-        return msg instanceof VehInfoMsg; // || msg instanceof FastMessage;
+        return msg instanceof VehInfoMessage; // || msg instanceof FastMessage;
     }
 
     @Override

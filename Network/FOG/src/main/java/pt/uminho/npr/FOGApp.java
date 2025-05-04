@@ -62,8 +62,8 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
 
     @Override
     public void onMessageReceived(ReceivedV2xMessage receivedMsg) {
-        if (receivedMsg.getMessage() instanceof VehInfoMsg) {
-            VehInfoMsg msg = (VehInfoMsg) receivedMsg.getMessage();
+        if (receivedMsg.getMessage() instanceof VehInfoMessage) {
+            VehInfoMessage msg = (VehInfoMessage) receivedMsg.getMessage();
             getLog().infoSimTime(this, "Received msg: " + msg.toString());
             // // IConnection connection = getOs().getRoutingModule()
             // // .getClosestRoadPosition(msg.getSenderPosition().toGeoPoint())

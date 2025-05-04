@@ -130,10 +130,10 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
             knownRsuNeighbors.put(senderId, neighbor);
 
-        } else if (receivedMessage.getMessage() instanceof VehInfoMsg) {
+        } else if (receivedMessage.getMessage() instanceof VehInfoMessage) {
 
             // Receive Info message
-            VehInfoMsg fwdMsg = (VehInfoMsg) receivedMessage.getMessage();
+            VehInfoMessage fwdMsg = (VehInfoMessage) receivedMessage.getMessage();
             String senderId = fwdMsg.getSenderName();
 
             // Atualizar vizinhança
@@ -183,7 +183,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
                 // Create the VehInfoMsg that is a copy of the message received, only changing
                 // the forwarder Id
-                VehInfoMsg message = new VehInfoMsg(
+                VehInfoMessage message = new VehInfoMessage(
                         routing,
                         fwdMsg.getMessageId(),
                         fwdMsg.getTime(),
@@ -304,7 +304,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         }
 
         // Create the VehInfoMsg with the closest RSU details
-        VehInfoMsg message = new VehInfoMsg(
+        VehInfoMessage message = new VehInfoMessage(
                 routing,
                 messageId,
                 time,
