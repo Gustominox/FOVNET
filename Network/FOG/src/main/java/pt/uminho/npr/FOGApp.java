@@ -85,16 +85,16 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
         }
     }
 
-    private void sendStopMessage() {
+    private void sendStopMessage(String rsu, String destination) {
         long time = getOs().getSimulationTime();
 
         MessageRouting routing = getOs().getCellModule().createMessageRouting()
                 .tcp()
-                .destination("rsu_0")
+                .destination(rsu)
                 .topological()
                 .build();
 
-        StopMessage message = new StopMessage(routing, time, getOs().getId());
+        StopMessage message = new StopMessage(routing, time, getOs().getId(), destination);
 
         getOs().getCellModule().sendV2xMessage(message);
 

@@ -249,21 +249,6 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         getLog().infoSimTime(this, "onCamBuilding");
     }
 
-    private void sendStopMessage() {
-        MessageRouting routing = getOs().getAdHocModule()
-                .createMessageRouting()
-                .channel(AdHocChannel.CCH) // Send on Control Channel
-                .topological().broadcast()
-                .build();
-        long time = getOs().getSimulationTime();
-
-        StopMessage message = new StopMessage(routing, time, getOs().getId(), getOs().getPosition(), this.vehHeading,
-                this.vehSpeed, this.vehLane);
-
-        getOs().getAdHocModule().sendV2xMessage(message);
-        getLog().infoSimTime(this, "Sent StopMessage: " + message.toString());
-    }
-
     private void sendVehInfoMsg() {
 
         MessageRouting routing = getOs().getAdHocModule()

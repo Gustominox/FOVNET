@@ -12,44 +12,32 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-public class StopMessage extends V2xMessage {
+public class StopMessage extends V2xMessage implements Message {
 
     private final String stopCommand;
 
     private final EncodedPayload payload;
     private final long timeStamp;
     private final String senderName;
-    private final GeoPoint senderPos;
-    private final double senderHeading;
-    private final double senderSpeed;
-    private final int senderLaneId;
+    private final String receiverName;
 
     public StopMessage(
             final MessageRouting routing,
             final long time,
-            final String name,
-            final GeoPoint pos,
-            final double heading,
-            final double speed,
-            final int laneId) {
+            final String senderName,
+            final String receiverName) {
 
         super(routing);
         this.timeStamp = time;
-        this.senderName = name;
-        this.senderPos = pos;
-        this.senderHeading = heading;
-        this.senderSpeed = speed;
-        this.senderLaneId = laneId;
+        this.senderName = senderName;
+        this.receiverName = receiverName;
         this.stopCommand = "STOP"; // Fixed stop command
 
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataOutputStream dos = new DataOutputStream(baos)) {
             dos.writeLong(timeStamp);
             dos.writeUTF(senderName);
-            SerializationUtils.encodeGeoPoint(dos, senderPos);
-            dos.writeDouble(senderHeading);
-            dos.writeDouble(senderSpeed);
-            dos.writeInt(senderLaneId);
+            dos.writeUTF(receiverName);
 
             payload = new EncodedPayload(baos.toByteArray(), baos.size());
         } catch (IOException e) {
@@ -69,6 +57,14 @@ public class StopMessage extends V2xMessage {
 
     public String getStopCommand() {
         return stopCommand;
+    }
+
+    public StopMessage clone(final MessageRouting routing) {
+        return new StopMessage(
+                routing,
+                timeStamp,
+                senderName,
+                receiverName);
     }
 
     @Override
