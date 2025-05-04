@@ -70,6 +70,6 @@ public class SlowMessage extends V2xMessage implements Message {
 
     @Override
     public String toString() {
-        return "StopMessage from " + senderName + " with command: " + slowCommand;
+        return "SlowMessage from " + senderName + " with command: " + slowCommand;
     }
 }
