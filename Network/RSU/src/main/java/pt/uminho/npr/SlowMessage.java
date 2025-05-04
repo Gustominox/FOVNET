@@ -18,18 +18,21 @@ public class SlowMessage extends V2xMessage implements Message {
     private final long timeStamp;
     private final String senderName;
     private final String receiverName;
+    private final float targetSpeed;
 
     public SlowMessage(
             final MessageRouting routing,
             final long time,
             final String senderName,
-            final String receiverName) {
+            final String receiverName,
+            final float targetSpeed) {
 
         super(routing);
         this.timeStamp = time;
         this.senderName = senderName;
         this.receiverName = receiverName;
-        this.slowCommand = "SLOW"; // Fixed stop command
+        this.slowCommand = "SLOW";
+        this.targetSpeed = targetSpeed;
 
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataOutputStream dos = new DataOutputStream(baos)) {
@@ -60,12 +63,21 @@ public class SlowMessage extends V2xMessage implements Message {
         return slowCommand;
     }
 
+    /**
+     * 
+     * @return targetSpeed in Km/h
+     */
+    public float getTargetSpeed() {
+        return targetSpeed;
+    }
+
     public SlowMessage clone(final MessageRouting routing) {
         return new SlowMessage(
                 routing,
                 timeStamp,
                 senderName,
-                receiverName);
+                receiverName,
+                targetSpeed);
     }
 
     @Override

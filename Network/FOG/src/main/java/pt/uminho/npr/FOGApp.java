@@ -77,9 +77,10 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
             // getLog().infoSimTime(this, "Outgoing Connections: " + ids);
             // getLog().infoSimTime(this, "Incoming Connections: " +
             // connection.getIncomingConnections());
-            double speedLimit = 30;
-            if (msg.getSpeed() > speedLimit)
-                sendSlowMessage(msg.getForwarderId(), msg.getSenderName());
+
+            double speedLimit = 10;
+            if (msg.getSpeed() > speedLimit + 5) // 5km de respiro
+                sendSlowMessage(msg.getForwarderId(), msg.getSenderName(), (float) speedLimit);
 
         }
     }
@@ -100,7 +101,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
         getLog().infoSimTime(this, "Sent StopMessage: " + message.toString());
     }
 
-    private void sendSlowMessage(String rsu, String destination) {
+    private void sendSlowMessage(String rsu, String destination, float targetSpeed) {
         long time = getOs().getSimulationTime();
 
         if (rsu == "BROADCAST") {
@@ -114,7 +115,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
                 .topological()
                 .build();
 
-        SlowMessage message = new SlowMessage(routing, time, getOs().getId(), destination);
+        SlowMessage message = new SlowMessage(routing, time, getOs().getId(), destination, targetSpeed);
 
         getOs().getCellModule().sendV2xMessage(message);
 

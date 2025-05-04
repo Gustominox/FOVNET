@@ -102,8 +102,10 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
             SlowMessage stopMsg = (SlowMessage) receivedMessage.getMessage();
             getLog().infoSimTime(this, "Received SLOW message from " + stopMsg.getSenderName());
-            float targetSpeed = (float) (30 / 3.6);
-            getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, 30 / 3.6, 4.0));
+
+            float targetSpeed = (float) (stopMsg.getTargetSpeed() / 3.6); // m/s
+
+            getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, 4.0));
 
             getLog().infoSimTime(this, "Vehicle is stopping due to received SLOW command.");
 
