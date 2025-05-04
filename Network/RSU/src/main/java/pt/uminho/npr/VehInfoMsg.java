@@ -11,7 +11,7 @@ import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
 import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
 
-public class VehInfoMsg extends V2xMessage {
+public class VehInfoMsg extends V2xMessage implements Message {
 
     private final EncodedPayload payload;
     private final String messageId;
