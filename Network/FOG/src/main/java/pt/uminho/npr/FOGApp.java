@@ -65,6 +65,14 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
         if (receivedMsg.getMessage() instanceof VehInfoMessage) {
             VehInfoMessage msg = (VehInfoMessage) receivedMsg.getMessage();
             getLog().infoSimTime(this, "Received msg: " + msg.toString());
+            
+            // TODO : need to have a sense of old messages, if a message is received 
+            // that has an older timestamp than a message i already have from that vehicle 
+            // need to treat it differently, ignore it for instance 
+            // 
+            // maybe mensagens com um delay superior a x ignorar, tipo aging factor
+            
+
             // // IConnection connection = getOs().getRoutingModule()
             // // .getClosestRoadPosition(msg.getSenderPosition().toGeoPoint())
             // // .getConnection();

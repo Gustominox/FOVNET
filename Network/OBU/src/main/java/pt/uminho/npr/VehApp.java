@@ -79,6 +79,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
      * @param finalSpeed    Final speed in km/h
      * @param deceleration  Deceleration in m/s²
      * @return Deceleration time in nanoseconds (long)
+     * 
      */
 
     public long slowDownTime(double startingSpeed, double finalSpeed, double deceleration) {
@@ -110,6 +111,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, DECELERATION_NORMAL));
 
             getLog().infoSimTime(this, "Vehicle is slowing due to received SLOW command.");
+
+            // TODO: Reverter desaceleração e paragem
 
         } else if (receivedMessage.getMessage() instanceof StopMessage) {
 
