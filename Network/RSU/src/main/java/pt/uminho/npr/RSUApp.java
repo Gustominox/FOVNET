@@ -88,7 +88,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     @Override
     public void onMessageReceived(ReceivedV2xMessage receivedMsg) {
         if (isNetworkMessage(receivedMsg.getMessage())) {
-
+            // TODO: only forward the messages that i am the forwardId of
             Message msg = (Message) receivedMsg.getMessage();
 
             getLog().infoSimTime(this, "Received msg: " + msg.toString());

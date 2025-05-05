@@ -86,7 +86,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
             // getLog().infoSimTime(this, "Incoming Connections: " +
             // connection.getIncomingConnections());
 
-            double speedLimit = 10;
+            double speedLimit = 60;
             if (msg.getSpeed() > speedLimit + 5) // 5km de respiro
                 sendSlowMessage(msg.getForwarderId(), msg.getSenderName(), (float) speedLimit);
 

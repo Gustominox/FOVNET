@@ -171,8 +171,11 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
              * 3. if not BROADCAST
              */
             // Forward Info message if my id is equal to fwrdID of msg
-            if (fwdMsg.getForwarderId() == getOs().getId() || fwdMsg.getForwarderId() == "BROADCAST") {
+            if (fwdMsg.getForwarderId() == getOs().getId()) { // || fwdMsg.getForwarderId() == "BROADCAST") {
                 getLog().infoSimTime(this, "Forwarding Message ");
+
+                // BUG: I have a looping back bug, where if no one knows of an RSU they ping
+                // always with BROADCAST
 
                 String forwarderId = bestNeighbor();
 
