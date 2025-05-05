@@ -160,30 +160,18 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             getLog().infoSimTime(this, "Adding Veh: " + neighbor.toString() + " To Network Map");
 
             knownVehicleNeighbors.put(senderId, neighbor);
-            //
+            /**
+             * If msgId is Broadcast, the sender doesnt know about any RSU's
+             * I should Apply the forwarding logic here
+             * 1. try to find RSU
+             * 2. if not find veh with closest
+             * 3. if not BROADCAST
+             */
             // Forward Info message if my id is equal to fwrdID of msg
-            if (fwdMsg.getForwarderId() == getOs().getId()) {
+            if (fwdMsg.getForwarderId() == getOs().getId() || fwdMsg.getForwarderId() == "BROADCAST") {
                 getLog().infoSimTime(this, "Forwarding Message ");
 
-                /**
-                 * Default values if no RSU info exists,
-                 * this means that OBU as no info about Network map
-                 */
-                String forwarderId = "BROADCAST";
-
-                // Check closest RSU
-                Position myPosition = new Position(getOs().getPosition()); // Vehicle's current position
-                NeighborInfo receiver = findClosestRsu(myPosition);
-
-                if (receiver != null) {
-                    forwarderId = receiver.getId();
-                } else { // search for neiborh Closest to RSU
-                    receiver = findClosestNeighborToRsu();
-                    if (receiver != null) {
-                        forwarderId = receiver.getId();
-                    }
-                }
-                // change the Id of forwarder to next best neighbor (be RSU or Vehicle)
+                String forwarderId = bestNeighbor();
 
                 MessageRouting routing = getOs().getAdHocModule()
                         .createMessageRouting()
@@ -209,20 +197,28 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 getOs().getAdHocModule().sendV2xMessage(message);
                 getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
 
-                // TODO
-                /**
-                 * If msgId is Broadcast, the sender doesnt know about any RSU's
-                 * I should Apply the forwarding logic here
-                 * 1. try to find RSU
-                 * 2. if not find veh with closest
-                 * 3. if not BROADCAST
-                 */
-            } else if (fwdMsg.getForwarderId() == "BROADCAST") {
-
             }
-
         }
 
+    }
+
+    private String bestNeighbor() {
+        String forwarderId = "BROADCAST";
+
+        // Check closest RSU
+        Position myPosition = new Position(getOs().getPosition()); // Vehicle's current position
+        NeighborInfo receiver = findClosestRsu(myPosition);
+
+        if (receiver != null) {
+            forwarderId = receiver.getId();
+        } else { // search for neiborh Closest to RSU
+            receiver = findClosestNeighborToRsu();
+            if (receiver != null) {
+                forwarderId = receiver.getId();
+            }
+        }
+        // change the Id of forwarder to next best neighbor (be RSU or Vehicle)
+        return forwarderId;
     }
 
     private void cleanupOldNeighbors() {
