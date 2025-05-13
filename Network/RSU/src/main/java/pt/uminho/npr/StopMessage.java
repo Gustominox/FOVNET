@@ -2,9 +2,6 @@ package pt.uminho.npr;
 
 import org.eclipse.mosaic.lib.objects.v2x.EncodedPayload;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
-import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
-import org.eclipse.mosaic.lib.util.SerializationUtils;
-import org.eclipse.mosaic.lib.geo.GeoPoint;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -12,9 +9,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-public class StopMessage extends V2xMessage implements Message {
-
-    private final String stopCommand;
+public class StopMessage extends FogMessage {
 
     private final EncodedPayload payload;
     private final long timeStamp;
@@ -23,15 +18,15 @@ public class StopMessage extends V2xMessage implements Message {
 
     public StopMessage(
             final MessageRouting routing,
+            final Mode mode,
             final long time,
             final String senderName,
             final String receiverName) {
 
-        super(routing);
+        super(routing, mode);
         this.timeStamp = time;
         this.senderName = senderName;
         this.receiverName = receiverName;
-        this.stopCommand = "STOP"; // Fixed stop command
 
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataOutputStream dos = new DataOutputStream(baos)) {
@@ -55,13 +50,10 @@ public class StopMessage extends V2xMessage implements Message {
         return senderName;
     }
 
-    public String getStopCommand() {
-        return stopCommand;
-    }
-
     public StopMessage clone(final MessageRouting routing) {
         return new StopMessage(
                 routing,
+                super.getMode(),
                 timeStamp,
                 senderName,
                 receiverName);
@@ -69,6 +61,6 @@ public class StopMessage extends V2xMessage implements Message {
 
     @Override
     public String toString() {
-        return "StopMessage from " + senderName + " with command: " + stopCommand;
+        return "StopMessage from " + senderName;
     }
 }
