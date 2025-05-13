@@ -105,20 +105,23 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
             SlowMessage slowMsg = (SlowMessage) receivedMessage.getMessage();
             if (slowMsg.getMode() == Mode.DIRECT) {
-                getLog().infoSimTime(this, "Received SLOW message from " + slowMsg.getSenderName());
+                if (slowMsg.getReceiverName() == getOs().getId()) {
+                    getLog().infoSimTime(this, "Received message: " + slowMsg.toString());
 
-                float targetSpeed = (float) (slowMsg.getTargetSpeed() / 3.6); // m/s
+                    float targetSpeed = (float) (slowMsg.getTargetSpeed() / 3.6); // m/s
 
-                getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, DECELERATION_NORMAL));
+                    getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, DECELERATION_NORMAL));
 
-                getLog().infoSimTime(this, "Vehicle is slowing due to received SLOW command.");
+                    getLog().infoSimTime(this, "Vehicle is slowing due to received SLOW command.");
+                } else { // TODO: need to add fwrdID to backtrace the message
+
+                }
             } else if (slowMsg.getMode() == Mode.SEARCH) {
 
                 String destId = slowMsg.getReceiverName();
                 NeighborInfo destInfo = findNeighbor(destId);
                 if (destInfo != null) {
-                    // TODO: check if publisher is equal to desteny to change mode
-                    getLog().infoSimTime(this, "Forwarding Message Slow message");
+                    getLog().infoSimTime(this, "Forwarding Message: " + slowMsg.toString());
 
                     MessageRouting routing = getOs().getAdHocModule()
                             .createMessageRouting()
@@ -126,11 +129,11 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                             .topological().broadcast()
                             .build(); // Broadcast to nearby vehicles
 
-                    // Create the VehInfoMsg that is a copy of the message received, only changing
-                    // the forwarder Id
+                    // Change Mode to Direct so that the message backtraces
+                    // the network to the Destination
                     SlowMessage message = new SlowMessage(
                             routing,
-                            slowMsg.getMode(),
+                            Mode.DIRECT,
                             slowMsg.getTime(),
                             slowMsg.getSenderName(),
                             slowMsg.getReceiverName(),

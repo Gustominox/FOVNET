@@ -59,6 +59,10 @@ public class SlowMessage extends FogMessage {
         return receiverName;
     }
 
+    public Long getTime() {
+        return timeStamp;
+    }
+
     /**
      * 
      * @return targetSpeed in Km/h
@@ -79,6 +83,13 @@ public class SlowMessage extends FogMessage {
 
     @Override
     public String toString() {
-        return "SlowMessage from " + senderName;
+        return "SlowMessage { " +
+                "senderName='" + senderName + '\'' +
+                ", receiverName='" + receiverName + '\'' +
+                ", timeStamp=" + timeStamp +
+                ", targetSpeed=" + targetSpeed + " km/h" +
+                ", mode=" + super.getMode() +
+                " }";
     }
+
 }
