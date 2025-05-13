@@ -39,13 +39,13 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 
         getOs().getCellModule().enable();
 
-        getLog().infoSimTime(this, "onStartup: Set up");
+        getLog().infoSimTime(this, "=== Starting RSU ===");
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
     }
 
     @Override
     public void processEvent(Event arg0) throws Exception {
-        getLog().infoSimTime(this, "processEvent");
+        // getLog().infoSimTime(this, "processEvent");
 
         // Send a Beacon message every 1 second
         if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {

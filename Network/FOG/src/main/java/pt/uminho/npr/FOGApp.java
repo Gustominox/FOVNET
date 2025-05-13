@@ -30,15 +30,15 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
 
         getLog().infoSimTime(this, "Setup FOG server {} at time {}", getOs().getId(), getOs().getSimulationTime());
 
-        getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
+        // getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
     }
 
     @Override
     public void processEvent(Event arg0) throws Exception {
         getLog().infoSimTime(this, "processEvent");
 
-        getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
 
+        getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
     }
 
     @Override
