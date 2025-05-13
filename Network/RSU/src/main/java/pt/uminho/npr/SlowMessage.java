@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-public class SlowMessage extends V2xMessage implements Message {
+public class SlowMessage extends FogMessage {
 
     private final String slowCommand;
 
@@ -22,12 +22,13 @@ public class SlowMessage extends V2xMessage implements Message {
 
     public SlowMessage(
             final MessageRouting routing,
+            final Mode mode,
             final long time,
             final String senderName,
             final String receiverName,
             final float targetSpeed) {
 
-        super(routing);
+        super(routing, mode);
         this.timeStamp = time;
         this.senderName = senderName;
         this.receiverName = receiverName;
@@ -74,6 +75,7 @@ public class SlowMessage extends V2xMessage implements Message {
     public SlowMessage clone(final MessageRouting routing) {
         return new SlowMessage(
                 routing,
+                super.getMode(),
                 timeStamp,
                 senderName,
                 receiverName,
