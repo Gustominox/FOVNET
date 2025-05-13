@@ -9,9 +9,10 @@ public class NeighborInfo {
     public double speed;
     public int lane;
     public long lastSeen;
+    public String publisher;
 
     public NeighborInfo(String id, Position position, double distanceToRsu, int numberOfHops, double heading,
-            double speed, int lane, long lastSeen) {
+            double speed, int lane, long lastSeen, String publisher) {
         this.id = id;
         this.position = position;
         this.distanceToRsu = distanceToRsu;
@@ -20,6 +21,7 @@ public class NeighborInfo {
         this.speed = speed;
         this.lane = lane;
         this.lastSeen = lastSeen;
+        this.publisher = publisher;
     }
 
     public String getId() {
@@ -37,7 +39,7 @@ public class NeighborInfo {
     @Override
     public String toString() {
         return String.format(
-                "NeighborInfo {id='%s', position=%s, distanceToRsu=%.2f, numberOfHops=%d, heading=%.2f, speed=%.2f, lane=%d, lastSeen=%d}",
+                "NeighborInfo {id='%s', position=%s, distanceToRsu=%.2f, numberOfHops=%d, heading=%.2f, speed=%.2f, lane=%d, lastSeen=%d, publisher=%s}",
                 id,
                 position != null ? position.toString() : "null", // Handling null for position
                 distanceToRsu,
@@ -45,7 +47,8 @@ public class NeighborInfo {
                 heading,
                 speed,
                 lane,
-                lastSeen);
+                lastSeen,
+                publisher);
     }
 
 }

@@ -59,6 +59,10 @@ public class SlowMessage extends FogMessage {
         return receiverName;
     }
 
+    public Long getTime() {
+        return timeStamp;
+    }
+
     /**
      * 
      * @return targetSpeed in Km/h

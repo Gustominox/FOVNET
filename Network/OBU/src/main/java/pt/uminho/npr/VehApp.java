@@ -116,7 +116,29 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
                 String destId = slowMsg.getReceiverName();
                 NeighborInfo destInfo = findNeighbor(destId);
+                if (destInfo != null) {
+                    // TODO: check if publisher is equal to desteny to change mode
+                    getLog().infoSimTime(this, "Forwarding Message Slow message");
 
+                    MessageRouting routing = getOs().getAdHocModule()
+                            .createMessageRouting()
+                            .channel(AdHocChannel.CCH) // Send on Control Channel
+                            .topological().broadcast()
+                            .build(); // Broadcast to nearby vehicles
+
+                    // Create the VehInfoMsg that is a copy of the message received, only changing
+                    // the forwarder Id
+                    SlowMessage message = new SlowMessage(
+                            routing,
+                            slowMsg.getMode(),
+                            slowMsg.getTime(),
+                            slowMsg.getSenderName(),
+                            slowMsg.getReceiverName(),
+                            slowMsg.getTargetSpeed());
+
+                    getOs().getAdHocModule().sendV2xMessage(message);
+                    getLog().infoSimTime(this, "Sent SlowMessage: " + message.toString());
+                }
             }
 
             // TODO: Reverter desaceleração e paragem
@@ -144,7 +166,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                     0.0,
                     0.0,
                     -1,
-                    currentTime);
+                    currentTime,
+                    senderId);
 
             getLog().infoSimTime(this, "Adding RSU: " + neighbor.toString() + " To Network Map");
 
@@ -167,7 +190,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                         fwdMsg.getHeading(),
                         fwdMsg.getSpeed(),
                         fwdMsg.getLaneId(),
-                        currentTime);
+                        currentTime,
+                        fwdMsg.getForwarderId());
 
                 getLog().infoSimTime(this, "Adding Veh: " + neighbor.toString() + " To Network Map");
 
@@ -335,6 +359,24 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
         getOs().getAdHocModule().sendV2xMessage(message);
         getLog().infoSimTime(this, "Sent VehInfoMessage: " + message.toString());
+    }
+
+    private NeighborInfo findNeighbor(String DestId) {
+        // If the map is empty, return null
+        if (knownVehicleNeighbors.isEmpty()) {
+            getLog().infoSimTime(this, "No Vehicles known.");
+            return null;
+        }
+
+        // Try to get the neighbor with the specified DestId from the map
+        NeighborInfo neighbor = knownVehicleNeighbors.get(DestId);
+
+        // If no neighbor is found, return null
+        if (neighbor == null) {
+            getLog().infoSimTime(this, "No neighbor found with DestId: " + DestId);
+        }
+
+        return neighbor;
     }
 
     private NeighborInfo findClosestRsu(Position myPosition) {
