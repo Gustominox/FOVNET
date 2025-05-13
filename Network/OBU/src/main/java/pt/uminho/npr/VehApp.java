@@ -236,12 +236,12 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
     @Override
     public void onMessageTransmitted(V2xMessageTransmission arg0) {
-        getLog().infoSimTime(this, "onMessageTransmitted");
+        // getLog().infoSimTime(this, "onMessageTransmitted");
     }
 
     @Override
     public void onVehicleUpdated(@Nullable VehicleData previousVehicleData, @Nonnull VehicleData updatedVehicleData) {
-        getLog().infoSimTime(this, "onVehicleUpdated");
+        // getLog().infoSimTime(this, "onVehicleUpdated");
 
         this.vehHeading = updatedVehicleData.getHeading().doubleValue();
         double speedKmh = updatedVehicleData.getSpeed() * 3.6;
@@ -314,7 +314,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 forwarderId);
 
         getOs().getAdHocModule().sendV2xMessage(message);
-        getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
+        getLog().infoSimTime(this, "Sent VehInfoMessage: " + message.toString());
     }
 
     private NeighborInfo findClosestRsu(Position myPosition) {

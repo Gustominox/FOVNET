@@ -81,29 +81,32 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
         return msg instanceof SlowMessage || msg instanceof StopMessage;
     }
 
-    private boolean isNetworkMessage(V2xMessage msg) {
+    private boolean isNetworkMessage(Message msg) {
         return msg instanceof VehInfoMessage; // || msg instanceof FastMessage;
     }
 
     @Override
     public void onMessageReceived(ReceivedV2xMessage receivedMsg) {
-        if (isNetworkMessage(receivedMsg.getMessage())) {
-            // TODO: only forward the messages that i am the forwardId of
-            Message msg = (Message) receivedMsg.getMessage();
 
-            getLog().infoSimTime(this, "Received msg: " + msg.toString());
+        Message msg = (Message) receivedMsg.getMessage();
 
-            MessageRouting routing = getOs().getCellModule().createMessageRouting()
-                    .tcp()
-                    .destination("server_0")
-                    .topological()
-                    .build();
+        if (isNetworkMessage(msg)) {
+            // only forward the messages that i am the forwardId of
+            VehInfoMessage vehMsg = (VehInfoMessage) msg;
 
-            getOs().getCellModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+            if (vehMsg.getForwarderId() == getOs().getId() || vehMsg.getForwarderId() == "BROADCAST") {
 
+                getLog().infoSimTime(this, "Received msg: " + msg.toString());
+
+                MessageRouting routing = getOs().getCellModule().createMessageRouting()
+                        .tcp()
+                        .destination("server_0")
+                        .topological()
+                        .build();
+
+                getOs().getCellModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+            }
         } else if (isFogMessage(receivedMsg.getMessage())) {
-
-            Message msg = (Message) receivedMsg.getMessage();
 
             getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
@@ -116,7 +119,6 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
             getOs().getAdHocModule().sendV2xMessage((V2xMessage) msg.clone(routing));
 
         } else {
-            Message msg = (Message) receivedMsg.getMessage();
 
             getLog().infoSimTime(this, "Undefined behavior for " + msg.toString());
 
