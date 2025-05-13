@@ -98,6 +98,9 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 
                 getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
+                vehMsg.setForwarderId(getOs().getId()); // if it is broacast i want it to be rsu_id so that fog can
+                                                        // traceback the message
+
                 MessageRouting routing = getOs().getCellModule().createMessageRouting()
                         .tcp()
                         .destination("server_0")
