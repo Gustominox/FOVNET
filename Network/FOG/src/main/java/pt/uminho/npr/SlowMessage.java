@@ -10,9 +10,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-public class SlowMessage extends V2xMessage implements Message {
-
-    private final String slowCommand;
+public class SlowMessage extends FogMessage {
 
     private final EncodedPayload payload;
     private final long timeStamp;
@@ -22,22 +20,24 @@ public class SlowMessage extends V2xMessage implements Message {
 
     public SlowMessage(
             final MessageRouting routing,
+            final Mode mode,
             final long time,
             final String senderName,
             final String receiverName,
             final float targetSpeed) {
 
-        super(routing);
+        super(routing, mode);
         this.timeStamp = time;
         this.senderName = senderName;
         this.receiverName = receiverName;
-        this.slowCommand = "SLOW";
         this.targetSpeed = targetSpeed;
 
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataOutputStream dos = new DataOutputStream(baos)) {
             dos.writeLong(timeStamp);
             dos.writeUTF(senderName);
+            dos.writeUTF(receiverName);
+            dos.writeFloat(targetSpeed);
 
             payload = new EncodedPayload(baos.toByteArray(), baos.size());
         } catch (IOException e) {
@@ -59,10 +59,6 @@ public class SlowMessage extends V2xMessage implements Message {
         return receiverName;
     }
 
-    public String getSlowCommand() {
-        return slowCommand;
-    }
-
     /**
      * 
      * @return targetSpeed in Km/h
@@ -74,6 +70,7 @@ public class SlowMessage extends V2xMessage implements Message {
     public SlowMessage clone(final MessageRouting routing) {
         return new SlowMessage(
                 routing,
+                super.getMode(),
                 timeStamp,
                 senderName,
                 receiverName,
@@ -82,6 +79,6 @@ public class SlowMessage extends V2xMessage implements Message {
 
     @Override
     public String toString() {
-        return "SlowMessage from " + senderName + " with command: " + slowCommand;
+        return "SlowMessage from " + senderName;
     }
 }
