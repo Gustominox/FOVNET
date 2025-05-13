@@ -283,6 +283,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
         // Check closest RSU
         Position myPosition = new Position(getOs().getPosition()); // Vehicle's current position
+
         NeighborInfo receiver = findClosestRsu(myPosition);
 
         if (receiver != null) {
@@ -291,12 +292,21 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             forwarderId = receiver.getId();
         } else { // search for neiborh Closest to RSU
             receiver = findClosestNeighborToRsu();
+
             if (receiver != null) {
                 double distanceToVeh = myPosition.distanceTo(receiver.position); // Calculate distance to the vehicle
                 distanceToRsu = distanceToVeh + receiver.getDistanceToRsu();
                 numberOfHops = receiver.getNumberOfHops() + 1;
                 forwarderId = receiver.getId();
             }
+        }
+
+        if (receiver == null) {
+
+            distanceToRsu = -1;
+            numberOfHops = -1;
+            forwarderId = "BROADCAST";
+
         }
 
         // Create the VehInfoMsg with the closest RSU details
@@ -349,15 +359,20 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
         // Loop through all neighbors
         for (NeighborInfo neighbor : knownVehicleNeighbors.values()) {
-            // Check if the neighbor is closer and has fewer hops
-            if (neighbor.distanceToRsu < minDistance ||
-                    (neighbor.distanceToRsu == minDistance && neighbor.numberOfHops < minHops)) {
-                minDistance = neighbor.distanceToRsu;
-                minHops = neighbor.numberOfHops;
-                if (minHops < 0)
-                    closestNeighbor = null; // If the closest neihbor doesnt know of any RSU then chose no neighbor
-                else
-                    closestNeighbor = neighbor; // Update the closest neighbor
+
+            // cehck if distance is reserved value -1 ou seja doesnt know of any rsu's
+            if (neighbor.distanceToRsu != -1) {
+
+                // Check if the neighbor is closer and has fewer hops
+                if (neighbor.distanceToRsu < minDistance ||
+                        (neighbor.distanceToRsu == minDistance && neighbor.numberOfHops < minHops)) {
+                    minDistance = neighbor.distanceToRsu;
+                    minHops = neighbor.numberOfHops;
+                    if (minHops < 0)
+                        closestNeighbor = null; // If the closest neihbor doesnt know of any RSU then chose no neighbor
+                    else
+                        closestNeighbor = neighbor; // Update the closest neighbor
+                }
             }
         }
 
