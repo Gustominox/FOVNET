@@ -45,13 +45,10 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 
     @Override
     public void processEvent(Event arg0) throws Exception {
-        // getLog().infoSimTime(this, "processEvent");
 
         // Send a Beacon message every 1 second
         if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
             sendBeaconMsg();
-            getLog().infoSimTime(this, "Sent Beacon Message: ");
-
         }
 
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
@@ -145,7 +142,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                 new Position(getOs().getPosition()));
 
         getOs().getAdHocModule().sendV2xMessage(message);
-        getLog().infoSimTime(this, "Sent BeaconMsg " + message.toString());
+        getLog().infoSimTime(this, "Sent " + message.toString());
     }
 
 }

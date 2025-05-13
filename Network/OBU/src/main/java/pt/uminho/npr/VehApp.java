@@ -104,13 +104,20 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         if (receivedMessage.getMessage() instanceof SlowMessage) {
 
             SlowMessage slowMsg = (SlowMessage) receivedMessage.getMessage();
-            getLog().infoSimTime(this, "Received SLOW message from " + slowMsg.getSenderName());
+            if (slowMsg.getMode() == Mode.DIRECT) {
+                getLog().infoSimTime(this, "Received SLOW message from " + slowMsg.getSenderName());
 
-            float targetSpeed = (float) (slowMsg.getTargetSpeed() / 3.6); // m/s
+                float targetSpeed = (float) (slowMsg.getTargetSpeed() / 3.6); // m/s
 
-            getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, DECELERATION_NORMAL));
+                getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, DECELERATION_NORMAL));
 
-            getLog().infoSimTime(this, "Vehicle is slowing due to received SLOW command.");
+                getLog().infoSimTime(this, "Vehicle is slowing due to received SLOW command.");
+            } else if (slowMsg.getMode() == Mode.SEARCH) {
+
+                String destId = slowMsg.getReceiverName();
+                NeighborInfo destInfo = findNeighbor(destId);
+
+            }
 
             // TODO: Reverter desaceleração e paragem
 

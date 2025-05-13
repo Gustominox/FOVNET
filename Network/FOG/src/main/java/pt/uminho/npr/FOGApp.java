@@ -30,13 +30,13 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
 
         getLog().infoSimTime(this, "Setup FOG server {} at time {}", getOs().getId(), getOs().getSimulationTime());
 
-        // getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
+        // getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay,
+        // this);
     }
 
     @Override
     public void processEvent(Event arg0) throws Exception {
         getLog().infoSimTime(this, "processEvent");
-
 
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
     }
@@ -65,13 +65,12 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
         if (receivedMsg.getMessage() instanceof VehInfoMessage) {
             VehInfoMessage msg = (VehInfoMessage) receivedMsg.getMessage();
             getLog().infoSimTime(this, "Received msg: " + msg.toString());
-            
-            // TODO : need to have a sense of old messages, if a message is received 
-            // that has an older timestamp than a message i already have from that vehicle 
-            // need to treat it differently, ignore it for instance 
-            // 
+
+            // TODO : need to have a sense of old messages, if a message is received
+            // that has an older timestamp than a message i already have from that vehicle
+            // need to treat it differently, ignore it for instance
+            //
             // maybe mensagens com um delay superior a x ignorar, tipo aging factor
-            
 
             // // IConnection connection = getOs().getRoutingModule()
             // // .getClosestRoadPosition(msg.getSenderPosition().toGeoPoint())
@@ -87,13 +86,20 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
             // connection.getIncomingConnections());
 
             double speedLimit = 40;
-            if (msg.getSpeed() > speedLimit + 5) // 5km de respiro
-                sendSlowMessage(msg.getForwarderId(), msg.getSenderName(), (float) speedLimit);
+            if (msg.getSpeed() > speedLimit + 5) {// 5km de respiro
+                Mode mode;
+                if (msg.getDistanceToRsu() < 140)
+                    mode = Mode.DIRECT;
+                else
+                    mode = Mode.SEARCH;
+
+                sendSlowMessage(msg.getForwarderId(), mode, msg.getSenderName(), (float) speedLimit);
+            }
 
         }
     }
 
-    private void sendStopMessage(String rsu, String destination) {
+    private void sendStopMessage(String rsu, Mode mode, String destination) {
         long time = getOs().getSimulationTime();
 
         MessageRouting routing = getOs().getCellModule().createMessageRouting()
@@ -102,20 +108,15 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
                 .topological()
                 .build();
 
-        StopMessage message = new StopMessage(routing, time, getOs().getId(), destination);
+        StopMessage message = new StopMessage(routing, mode, time, getOs().getId(), destination);
 
         getOs().getCellModule().sendV2xMessage(message);
 
         getLog().infoSimTime(this, "Sent StopMessage: " + message.toString());
     }
 
-    private void sendSlowMessage(String rsu, String destination, float targetSpeed) {
+    private void sendSlowMessage(String rsu, Mode mode, String destination, float targetSpeed) {
         long time = getOs().getSimulationTime();
-
-        if (rsu == "BROADCAST") {
-            // TODO: calculate predictable closest RSU
-            rsu = "rsu_0";
-        }
 
         MessageRouting routing = getOs().getCellModule().createMessageRouting()
                 .tcp()
@@ -123,7 +124,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
                 .topological()
                 .build();
 
-        SlowMessage message = new SlowMessage(routing, time, getOs().getId(), destination, targetSpeed);
+        SlowMessage message = new SlowMessage(routing, mode, time, getOs().getId(), destination, targetSpeed);
 
         getOs().getCellModule().sendV2xMessage(message);
 
