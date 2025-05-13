@@ -12,8 +12,6 @@ import javax.annotation.Nonnull;
 
 public class SlowMessage extends FogMessage {
 
-    private final String slowCommand;
-
     private final EncodedPayload payload;
     private final long timeStamp;
     private final String senderName;
@@ -32,13 +30,14 @@ public class SlowMessage extends FogMessage {
         this.timeStamp = time;
         this.senderName = senderName;
         this.receiverName = receiverName;
-        this.slowCommand = "SLOW";
         this.targetSpeed = targetSpeed;
 
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataOutputStream dos = new DataOutputStream(baos)) {
             dos.writeLong(timeStamp);
             dos.writeUTF(senderName);
+            dos.writeUTF(receiverName);
+            dos.writeFloat(targetSpeed);
 
             payload = new EncodedPayload(baos.toByteArray(), baos.size());
         } catch (IOException e) {
@@ -58,10 +57,6 @@ public class SlowMessage extends FogMessage {
 
     public String getReceiverName() {
         return receiverName;
-    }
-
-    public String getSlowCommand() {
-        return slowCommand;
     }
 
     /**
@@ -84,6 +79,6 @@ public class SlowMessage extends FogMessage {
 
     @Override
     public String toString() {
-        return "SlowMessage from " + senderName + " with command: " + slowCommand;
+        return "SlowMessage from " + senderName;
     }
 }
