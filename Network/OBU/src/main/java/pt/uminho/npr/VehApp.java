@@ -171,37 +171,39 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
              * 3. if not BROADCAST
              */
             // Forward Info message if my id is equal to fwrdID of msg
-            if (fwdMsg.getForwarderId() == getOs().getId()) { // || fwdMsg.getForwarderId() == "BROADCAST") {
+            if (fwdMsg.getForwarderId() == getOs().getId() || fwdMsg.getForwarderId() == "BROADCAST") {
                 getLog().infoSimTime(this, "Forwarding Message ");
 
                 // BUG: I have a looping back bug, where if no one knows of an RSU they ping
                 // always with BROADCAST
 
                 String forwarderId = bestNeighbor();
+                if (forwarderId != "BROADCAST") {
 
-                MessageRouting routing = getOs().getAdHocModule()
-                        .createMessageRouting()
-                        .channel(AdHocChannel.CCH) // Send on Control Channel
-                        .topological().broadcast()
-                        .build(); // Broadcast to nearby vehicles
+                    MessageRouting routing = getOs().getAdHocModule()
+                            .createMessageRouting()
+                            .channel(AdHocChannel.CCH) // Send on Control Channel
+                            .topological().broadcast()
+                            .build(); // Broadcast to nearby vehicles
 
-                // Create the VehInfoMsg that is a copy of the message received, only changing
-                // the forwarder Id
-                VehInfoMessage message = new VehInfoMessage(
-                        routing,
-                        fwdMsg.getMessageId(),
-                        fwdMsg.getTime(),
-                        fwdMsg.getSenderName(),
-                        fwdMsg.getSenderPosition(),
-                        fwdMsg.getHeading(),
-                        fwdMsg.getSpeed(),
-                        fwdMsg.getLaneId(),
-                        fwdMsg.getDistanceToRsu(),
-                        fwdMsg.getNumberOfHops(),
-                        forwarderId);
+                    // Create the VehInfoMsg that is a copy of the message received, only changing
+                    // the forwarder Id
+                    VehInfoMessage message = new VehInfoMessage(
+                            routing,
+                            fwdMsg.getMessageId(),
+                            fwdMsg.getTime(),
+                            fwdMsg.getSenderName(),
+                            fwdMsg.getSenderPosition(),
+                            fwdMsg.getHeading(),
+                            fwdMsg.getSpeed(),
+                            fwdMsg.getLaneId(),
+                            fwdMsg.getDistanceToRsu(),
+                            fwdMsg.getNumberOfHops(),
+                            forwarderId);
 
-                getOs().getAdHocModule().sendV2xMessage(message);
-                getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
+                    getOs().getAdHocModule().sendV2xMessage(message);
+                    getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
+                } // else i dont know any rsu's so i dont BROADCAST
 
             }
         }
