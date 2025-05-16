@@ -28,6 +28,10 @@ public class NeighborInfo {
         return id;
     }
 
+    public String getPublisher() {
+        return publisher;
+    }
+
     public double getDistanceToRsu() {
         return distanceToRsu;
     }

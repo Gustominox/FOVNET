@@ -113,13 +113,42 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                     getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, DECELERATION_NORMAL));
 
                     getLog().infoSimTime(this, "Vehicle is slowing due to received SLOW command.");
-                } else { // TODO: need to add fwrdID to backtrace the message
+                } else if (slowMsg.getFwrdId() == getOs().getId()) {
+
+                    String destId = slowMsg.getReceiverName();
+                    NeighborInfo destInfo = findNeighbor(destId);
+
+                    if (destInfo != null) { // existe o vixinho no meu mapa
+                        getLog().infoSimTime(this, "Forwarding Message: " + slowMsg.toString());
+
+                        MessageRouting routing = getOs().getAdHocModule()
+                                .createMessageRouting()
+                                .channel(AdHocChannel.CCH) // Send on Control Channel
+                                .topological().broadcast()
+                                .build(); // Broadcast to nearby vehicles
+
+                        // Change Mode to Direct so that the message backtraces
+                        // the network to the Destination
+                        SlowMessage message = new SlowMessage(
+                                routing,
+                                Mode.DIRECT,
+                                slowMsg.getTime(),
+                                slowMsg.getSenderName(),
+                                destInfo.getPublisher(),
+                                slowMsg.getReceiverName(),
+                                slowMsg.getTargetSpeed());
+
+                        getOs().getAdHocModule().sendV2xMessage(message);
+                        getLog().infoSimTime(this, "Sent SlowMessage: " + message.toString());
+                    } // se nao existe nao faco nada
 
                 }
+
             } else if (slowMsg.getMode() == Mode.SEARCH) {
 
                 String destId = slowMsg.getReceiverName();
                 NeighborInfo destInfo = findNeighbor(destId);
+
                 if (destInfo != null) {
                     getLog().infoSimTime(this, "Forwarding Message: " + slowMsg.toString());
 
@@ -136,6 +165,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                             Mode.DIRECT,
                             slowMsg.getTime(),
                             slowMsg.getSenderName(),
+                            destInfo.getPublisher(),
                             slowMsg.getReceiverName(),
                             slowMsg.getTargetSpeed());
 
@@ -198,6 +228,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
                 getLog().infoSimTime(this, "Adding Veh: " + neighbor.toString() + " To Network Map");
 
+                // TODO: so mudar a info dos vizinhos se o caminho for melhor ou o mais atual
                 knownVehicleNeighbors.put(senderId, neighbor);
                 /**
                  * If msgId is Broadcast, the sender doesnt know about any RSU's

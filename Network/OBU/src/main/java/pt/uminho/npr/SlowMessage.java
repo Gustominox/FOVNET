@@ -23,10 +23,11 @@ public class SlowMessage extends FogMessage {
             final Mode mode,
             final long time,
             final String senderName,
+            final String forwarderId,
             final String receiverName,
             final float targetSpeed) {
 
-        super(routing, mode);
+        super(routing, mode, forwarderId);
         this.timeStamp = time;
         this.senderName = senderName;
         this.receiverName = receiverName;
@@ -77,6 +78,7 @@ public class SlowMessage extends FogMessage {
                 super.getMode(),
                 timeStamp,
                 senderName,
+                super.getFwrdId(),
                 receiverName,
                 targetSpeed);
     }
@@ -86,6 +88,7 @@ public class SlowMessage extends FogMessage {
         return "SlowMessage { " +
                 "senderName='" + senderName + '\'' +
                 ", receiverName='" + receiverName + '\'' +
+                ", forwarder='" + super.getFwrdId() + '\'' +
                 ", timeStamp=" + timeStamp +
                 ", targetSpeed=" + targetSpeed + " km/h" +
                 ", mode=" + super.getMode() +

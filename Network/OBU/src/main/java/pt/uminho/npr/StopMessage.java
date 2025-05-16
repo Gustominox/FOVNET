@@ -21,9 +21,10 @@ public class StopMessage extends FogMessage {
             final Mode mode,
             final long time,
             final String senderName,
+            final String forwarderId,
             final String receiverName) {
 
-        super(routing, mode);
+        super(routing, mode, forwarderId);
         this.timeStamp = time;
         this.senderName = senderName;
         this.receiverName = receiverName;
@@ -56,6 +57,7 @@ public class StopMessage extends FogMessage {
                 super.getMode(),
                 timeStamp,
                 senderName,
+                super.getFwrdId(),
                 receiverName);
     }
 
