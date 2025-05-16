@@ -108,7 +108,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
                 .topological()
                 .build();
 
-        StopMessage message = new StopMessage(routing, mode, time, getOs().getId(), destination);
+        StopMessage message = new StopMessage(routing, mode, time, getOs().getId(), "BROADCAST", destination);
 
         getOs().getCellModule().sendV2xMessage(message);
 
@@ -124,7 +124,8 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
                 .topological()
                 .build();
 
-        SlowMessage message = new SlowMessage(routing, mode, time, getOs().getId(), destination, targetSpeed);
+        SlowMessage message = new SlowMessage(routing, mode, time, getOs().getId(), "BROADCAST", destination,
+                targetSpeed);
 
         getOs().getCellModule().sendV2xMessage(message);
 
