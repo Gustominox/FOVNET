@@ -224,24 +224,25 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                         fwdMsg.getSpeed(),
                         fwdMsg.getLaneId(),
                         currentTime,
-                        fwdMsg.getForwarderId());
+                        fwdMsg.getFwrdId());
 
                 getLog().infoSimTime(this, "Adding Veh: " + neighbor.toString() + " To Network Map");
 
                 // TODO: so mudar a info dos vizinhos se o caminho for melhor ou o mais atual
                 knownVehicleNeighbors.put(senderId, neighbor);
                 /**
-                 * If msgId is Broadcast, the sender doesnt know about any RSU's
+                 * If Mode is Search, the sender doesnt know about any RSU's
                  * I should Apply the forwarding logic here
                  * 1. try to find RSU
                  * 2. if not find veh with closest
-                 * 3. if not BROADCAST
+                 * 3. if not do nothing to avoid loopbacks
                  */
                 // Forward Info message if my id is equal to fwrdID of msg
-                if (fwdMsg.getForwarderId() == getOs().getId() || fwdMsg.getForwarderId() == "BROADCAST") {
+                if (fwdMsg.getFwrdId() == getOs().getId() || fwdMsg.getMode() == Mode.SEARCH) {
                     getLog().infoSimTime(this, "Forwarding Message ");
 
                     String forwarderId = bestNeighbor();
+
                     if (forwarderId != "BROADCAST") {
 
                         MessageRouting routing = getOs().getAdHocModule()
@@ -263,6 +264,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                                 fwdMsg.getLaneId(),
                                 fwdMsg.getDistanceToRsu(),
                                 fwdMsg.getNumberOfHops(),
+                                Mode.DIRECT,
                                 forwarderId);
 
                         getOs().getAdHocModule().sendV2xMessage(message);
@@ -348,6 +350,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         double distanceToRsu = Double.MAX_VALUE;
         int numberOfHops = -1;
         String forwarderId = "BROADCAST";
+        Mode mode = Mode.SEARCH;
 
         // Check closest RSU
         Position myPosition = new Position(getOs().getPosition()); // Vehicle's current position
@@ -358,6 +361,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             distanceToRsu = myPosition.distanceTo(receiver.position); // Calculate distance to the closest RSU
             numberOfHops = 0;
             forwarderId = receiver.getId();
+            mode = Mode.DIRECT;
         } else { // search for neiborh Closest to RSU
             receiver = findClosestNeighborToRsu();
 
@@ -366,6 +370,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 distanceToRsu = distanceToVeh + receiver.getDistanceToRsu();
                 numberOfHops = receiver.getNumberOfHops() + 1;
                 forwarderId = receiver.getId();
+                mode = Mode.DIRECT;
             }
         }
 
@@ -374,6 +379,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             distanceToRsu = -1;
             numberOfHops = -1;
             forwarderId = "BROADCAST";
+            mode = Mode.SEARCH;
 
         }
 
@@ -389,6 +395,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 this.vehLane,
                 distanceToRsu,
                 numberOfHops,
+                mode,
                 forwarderId);
 
         getOs().getAdHocModule().sendV2xMessage(message);

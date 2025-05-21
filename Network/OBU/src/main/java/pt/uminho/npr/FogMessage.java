@@ -3,7 +3,7 @@ package pt.uminho.npr;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
 
-public abstract class FogMessage extends V2xMessage implements Message {
+public abstract class FogMessage extends V2xMessage {
 
     private Mode mode;
     private String forwarderId;

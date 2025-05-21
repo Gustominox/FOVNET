@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-public class SlowMessage extends FogMessage {
+public class SlowMessage extends Message {
 
     private final EncodedPayload payload;
     private final long timeStamp;
