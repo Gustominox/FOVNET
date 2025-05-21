@@ -11,7 +11,7 @@ import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
 import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
 
-public class VehInfoMessage extends V2xMessage implements Message {
+public class VehInfoMessage extends Message {
 
     private final EncodedPayload payload;
     private final String messageId;
@@ -23,7 +23,6 @@ public class VehInfoMessage extends V2xMessage implements Message {
     private final int senderLaneId;
     private final double distanceToRsu; // Distance to nearest RSU
     private final int numberOfHops; // Number of hops for the message
-    private String forwarderId;
 
     public VehInfoMessage(
             final MessageRouting routing,
@@ -36,9 +35,10 @@ public class VehInfoMessage extends V2xMessage implements Message {
             final int laneId,
             final double distanceToRsu,
             final int numberOfHops,
+            Mode mode,
             String forwarderId) {
 
-        super(routing);
+        super(routing, mode, forwarderId);
         this.messageId = messageId;
         this.timeStamp = time;
         this.senderName = name;
@@ -48,7 +48,7 @@ public class VehInfoMessage extends V2xMessage implements Message {
         this.senderLaneId = laneId;
         this.distanceToRsu = distanceToRsu;
         this.numberOfHops = numberOfHops;
-        this.forwarderId = forwarderId;
+
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataOutputStream dos = new DataOutputStream(baos)) {
             // Write existing fields to the output stream
@@ -61,7 +61,6 @@ public class VehInfoMessage extends V2xMessage implements Message {
             dos.writeInt(senderLaneId);
             dos.writeDouble(distanceToRsu);
             dos.writeInt(numberOfHops);
-            dos.writeUTF(forwarderId);
 
             payload = new EncodedPayload(baos.toByteArray(), baos.size());
         } catch (IOException e) {
@@ -111,27 +110,19 @@ public class VehInfoMessage extends V2xMessage implements Message {
         return numberOfHops;
     }
 
-    public void setForwarderId(String fwdId) {
-        forwarderId = fwdId;
-    }
-
-    public String getForwarderId() {
-        return forwarderId;
-    }
-
     public VehInfoMessage clone(final MessageRouting routing) {
         return new VehInfoMessage(
                 routing,
                 messageId, // ID original
                 timeStamp,
                 senderName, senderPos, senderHeading, senderSpeed, senderLaneId, distanceToRsu, numberOfHops,
-                forwarderId);
+                super.getMode(), super.getFwrdId());
     }
 
     @Override
     public String toString() {
         return String.format(
-                "VehInfoMsg {messageId='%s', timeStamp=%d, senderName='%s', senderPosition=%s, senderHeading=%.2f, senderSpeed=%.2f, senderLaneId=%d, distanceToRsu=%.2f, numberOfHops=%d, forwarderId='%s'}",
+                "VehInfoMsg {messageId='%s', timeStamp=%d, senderName='%s', senderPosition=%s, senderHeading=%.2f, senderSpeed=%.2f, senderLaneId=%d, distanceToRsu=%.2f, numberOfHops=%d, mode='%s',forwarderId='%s'}",
                 messageId,
                 timeStamp,
                 senderName,
@@ -141,7 +132,8 @@ public class VehInfoMessage extends V2xMessage implements Message {
                 senderLaneId,
                 distanceToRsu,
                 numberOfHops,
-                forwarderId);
+                super.getMode(),
+                super.getFwrdId());
     }
 
 }

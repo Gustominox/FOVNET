@@ -91,12 +91,12 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
             // only forward the messages that i am the forwardId of
             VehInfoMessage vehMsg = (VehInfoMessage) msg;
 
-            if (vehMsg.getForwarderId() == getOs().getId() || vehMsg.getForwarderId() == "BROADCAST") {
+            if (vehMsg.getFwrdId() == getOs().getId() || vehMsg.getMode() == Mode.SEARCH) {
 
                 getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
-                vehMsg.setForwarderId(getOs().getId()); // if it is broacast i want it to be rsu_id so that fog can
-                                                        // traceback the message
+                vehMsg.setFwrdId(getOs().getId()); // if it is Mode Search i want it to be rsu_id so that fog can
+                                                   // traceback the message
 
                 MessageRouting routing = getOs().getCellModule().createMessageRouting()
                         .tcp()
