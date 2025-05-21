@@ -88,7 +88,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
             double speedLimit = 40;
             if (msg.getSpeed() > speedLimit + 5) {// 5km de respiro
                 Mode mode;
-                if (msg.getDistanceToRsu() < 140)
+                if (msg.getNumberOfHops() == 0)
                     mode = Mode.DIRECT;
                 else
                     mode = Mode.SEARCH;
