@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-public class StopMessage extends FogMessage {
+public class StopMessage extends Message {
 
     private final EncodedPayload payload;
     private final long timeStamp;

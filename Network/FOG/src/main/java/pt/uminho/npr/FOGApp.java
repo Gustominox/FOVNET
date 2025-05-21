@@ -93,7 +93,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
                 else
                     mode = Mode.SEARCH;
 
-                sendSlowMessage(msg.getForwarderId(), mode, msg.getSenderName(), (float) speedLimit);
+                sendSlowMessage(msg.getFwrdId(), mode, msg.getSenderName(), (float) speedLimit);
             }
 
         }
