@@ -89,14 +89,14 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 
         if (isNetworkMessage(msg)) {
             // only forward the messages that i am the forwardId of
-            VehInfoMessage vehMsg = (VehInfoMessage) msg;
+            // VehInfoMessage vehMsg = (VehInfoMessage) msg;
 
-            if (vehMsg.getFwrdId() == getOs().getId() || vehMsg.getMode() == Mode.SEARCH) {
+            if (msg.getFwrdId() == getOs().getId() || msg.getMode() == Mode.SEARCH) {
 
                 getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
-                vehMsg.setFwrdId(getOs().getId()); // if it is Mode Search i want it to be rsu_id so that fog can
-                                                   // traceback the message
+                msg.setFwrdId(getOs().getId()); // if it is Mode Search i want it to be rsu_id so that fog can
+                                                // traceback the message
 
                 MessageRouting routing = getOs().getCellModule().createMessageRouting()
                         .tcp()
@@ -106,18 +106,20 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 
                 getOs().getCellModule().sendV2xMessage((V2xMessage) msg.clone(routing));
             }
-        } else if (isFogMessage(receivedMsg.getMessage())) {
+        } else if (isFogMessage(msg)) {
 
-            getLog().infoSimTime(this, "Received msg: " + msg.toString());
+            if (msg.getFwrdId() == getOs().getId()) {
 
-            MessageRouting routing = getOs().getAdHocModule()
-                    .createMessageRouting()
-                    .channel(AdHocChannel.CCH)
-                    .topological().broadcast()
-                    .build();
+                getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
-            getOs().getAdHocModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+                MessageRouting routing = getOs().getAdHocModule()
+                        .createMessageRouting()
+                        .channel(AdHocChannel.CCH)
+                        .topological().broadcast()
+                        .build();
 
+                getOs().getAdHocModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+            }
         } else {
 
             getLog().infoSimTime(this, "Undefined behavior for " + msg.toString());
