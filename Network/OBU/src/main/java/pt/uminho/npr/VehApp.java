@@ -104,16 +104,19 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         if (receivedMessage.getMessage() instanceof SlowMessage) {
 
             SlowMessage slowMsg = (SlowMessage) receivedMessage.getMessage();
-            if (slowMsg.getMode() == Mode.DIRECT) {
-                if (slowMsg.getReceiverName() == getOs().getId()) {
-                    getLog().infoSimTime(this, "Received message: " + slowMsg.toString());
 
-                    float targetSpeed = (float) (slowMsg.getTargetSpeed() / 3.6); // m/s
+            if (slowMsg.getReceiverName() == getOs().getId()) {
+                getLog().infoSimTime(this, "Received message: " + slowMsg.toString());
 
-                    getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, DECELERATION_NORMAL));
+                float targetSpeed = (float) (slowMsg.getTargetSpeed() / 3.6); // m/s
 
-                    getLog().infoSimTime(this, "Vehicle is slowing due to received SLOW command.");
-                } else if (slowMsg.getFwrdId() == getOs().getId()) {
+                getOs().slowDown(targetSpeed, slowDownTime(this.vehSpeed, targetSpeed, DECELERATION_NORMAL));
+
+                getLog().infoSimTime(this, "Vehicle is slowing due to received SLOW command.");
+
+            } else if (slowMsg.getMode() == Mode.DIRECT) {
+
+                if (slowMsg.getFwrdId() == getOs().getId()) {
 
                     String destId = slowMsg.getReceiverName();
                     NeighborInfo destInfo = findNeighbor(destId);
