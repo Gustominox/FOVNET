@@ -23,6 +23,7 @@ public class VehInfoMessage extends Message {
     private final int senderLaneId;
     private final double distanceToRsu; // Distance to nearest RSU
     private final int numberOfHops; // Number of hops for the message
+    private final String publisher;
 
     public VehInfoMessage(
             final MessageRouting routing,
@@ -36,7 +37,8 @@ public class VehInfoMessage extends Message {
             final double distanceToRsu,
             final int numberOfHops,
             Mode mode,
-            String forwarderId) {
+            String forwarderId,
+            String publisher) {
 
         super(routing, mode, forwarderId);
         this.messageId = messageId;
@@ -48,7 +50,7 @@ public class VehInfoMessage extends Message {
         this.senderLaneId = laneId;
         this.distanceToRsu = distanceToRsu;
         this.numberOfHops = numberOfHops;
-
+        this.publisher = publisher;
         try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataOutputStream dos = new DataOutputStream(baos)) {
             // Write existing fields to the output stream
@@ -61,6 +63,7 @@ public class VehInfoMessage extends Message {
             dos.writeInt(senderLaneId);
             dos.writeDouble(distanceToRsu);
             dos.writeInt(numberOfHops);
+            dos.writeUTF(publisher);
 
             payload = new EncodedPayload(baos.toByteArray(), baos.size());
         } catch (IOException e) {
@@ -110,13 +113,17 @@ public class VehInfoMessage extends Message {
         return numberOfHops;
     }
 
+    public String getPublisher() {
+        return publisher;
+    }
+
     public VehInfoMessage clone(final MessageRouting routing) {
         return new VehInfoMessage(
                 routing,
                 messageId, // ID original
                 timeStamp,
                 senderName, senderPos, senderHeading, senderSpeed, senderLaneId, distanceToRsu, numberOfHops,
-                super.getMode(), super.getFwrdId());
+                super.getMode(), super.getFwrdId(), publisher);
     }
 
     @Override

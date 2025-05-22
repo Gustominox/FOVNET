@@ -227,7 +227,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                         fwdMsg.getSpeed(),
                         fwdMsg.getLaneId(),
                         currentTime,
-                        fwdMsg.getFwrdId());
+                        fwdMsg.getPublisher());
 
                 getLog().infoSimTime(this, "Adding Veh: " + neighbor.toString() + " To Network Map");
 
@@ -268,7 +268,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                                 fwdMsg.getDistanceToRsu(),
                                 fwdMsg.getNumberOfHops(),
                                 Mode.DIRECT,
-                                forwarderId);
+                                forwarderId,
+                                getOs().getId());
 
                         getOs().getAdHocModule().sendV2xMessage(message);
                         getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
@@ -399,7 +400,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 distanceToRsu,
                 numberOfHops,
                 mode,
-                forwarderId);
+                forwarderId,
+                carId);
 
         getOs().getAdHocModule().sendV2xMessage(message);
         getLog().infoSimTime(this, "Sent VehInfoMessage: " + message.toString());
