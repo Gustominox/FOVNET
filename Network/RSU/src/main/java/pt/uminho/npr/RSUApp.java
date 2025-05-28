@@ -9,6 +9,7 @@ import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
 import org.eclipse.mosaic.lib.enums.AdHocChannel;
 import org.eclipse.mosaic.fed.application.ambassador.simulation.communication.AdHocModuleConfiguration;
 import org.eclipse.mosaic.lib.util.scheduling.Event;
+import org.eclipse.mosaic.lib.util.scheduling.EventBuilder;
 import org.eclipse.mosaic.fed.application.app.api.os.RoadSideUnitOperatingSystem;
 import org.eclipse.mosaic.rti.TIME;
 import org.eclipse.mosaic.lib.geo.GeoPoint;
@@ -24,7 +25,8 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
         implements CommunicationApplication
 
 {
-    private final long MsgDelay = 200 * TIME.MILLI_SECOND;
+    private final long MsgDelayAdHoc = 200 * TIME.MILLI_SECOND;
+    private final long MsgDelayCell = 0 * TIME.MILLI_SECOND; // 0 porque o federate do Cell ja mete delay
     private final int Power = 50;
     private final double Distance = 140.0;
 
@@ -40,18 +42,42 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
         getOs().getCellModule().enable();
 
         getLog().infoSimTime(this, "=== Starting RSU ===");
-        getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
+        getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelayAdHoc, this);
     }
 
     @Override
-    public void processEvent(Event arg0) throws Exception {
+    public void processEvent(Event event) throws Exception {
 
-        // Send a Beacon message every 1 second
-        if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
-            sendBeaconMsg();
+        Object resource = event.getResource();
+        if (resource != null) {
+            if (resource instanceof Message) {
+                Message message = (Message) resource;
+
+                if (isNetworkMessage(message)) {
+                    getOs().getCellModule().sendV2xMessage(message);
+                } else if (isFogMessage(message)) {
+                    getOs().getAdHocModule().sendV2xMessage(message);
+
+                }
+                getLog().infoSimTime(this, "Sent : " + message.toString());
+            } else if (resource instanceof BeaconMsg) {
+                BeaconMsg message = (BeaconMsg) resource;
+                getOs().getAdHocModule().sendV2xMessage(message);
+
+                getLog().infoSimTime(this, "Sent : " + message.toString());
+
+            }
+
+        } else {
+            getLog().infoSimTime(this, "Event Tick: ");
+
+            // Send a Awareness message every 1 second
+            if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
+                getLog().infoSimTime(this, "Scheduling Beacon Message: ");
+                sendBeaconMsg();
+            }
+            getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelayAdHoc, this);
         }
-
-        getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
 
     }
 
@@ -74,7 +100,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     public void onCamBuilding(CamBuilder camBuilder) {
     }
 
-    private boolean isFogMessage(V2xMessage msg) {
+    private boolean isFogMessage(Message msg) {
         return msg instanceof SlowMessage || msg instanceof StopMessage;
     }
 
@@ -86,6 +112,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     public void onMessageReceived(ReceivedV2xMessage receivedMsg) {
 
         Message msg = (Message) receivedMsg.getMessage();
+        long currentTime = getOs().getSimulationTime();
 
         if (isNetworkMessage(msg)) {
             // only forward the messages that i am the forwardId of
@@ -104,7 +131,11 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                         .topological()
                         .build();
 
-                getOs().getCellModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+                EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelayCell, this);
+                enviarMsg.withResource(msg.clone(routing));
+                enviarMsg.schedule();
+
+                // getOs().getCellModule().sendV2xMessage((V2xMessage) msg.clone(routing));
             }
         } else if (isFogMessage(msg)) {
 
@@ -118,7 +149,11 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                         .topological().broadcast()
                         .build();
 
-                getOs().getAdHocModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+                EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelayAdHoc, this);
+                enviarMsg.withResource(msg.clone(routing));
+                enviarMsg.schedule();
+
+                // getOs().getAdHocModule().sendV2xMessage((V2xMessage) msg.clone(routing));
             }
         } else {
 
@@ -128,6 +163,8 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     }
 
     private void sendBeaconMsg() {
+        long currentTime = getOs().getSimulationTime();
+
         MessageRouting routing = getOs().getAdHocModule()
                 .createMessageRouting()
                 .channel(AdHocChannel.CCH)
@@ -143,8 +180,9 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                 rsuId,
                 new Position(getOs().getPosition()));
 
-        getOs().getAdHocModule().sendV2xMessage(message);
-        getLog().infoSimTime(this, "Sent " + message.toString());
+        EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelayAdHoc, this);
+        enviarMsg.withResource(message);
+        enviarMsg.schedule();
     }
 
 }
