@@ -63,20 +63,24 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     public void processEvent(Event event) throws Exception {
         cleanupOldNeighbors();
         Object resource = event.getResource();
+        if (resource != null) {
+            if (resource instanceof Message) {
+                Message message = (Message) resource;
+                getOs().getAdHocModule().sendV2xMessage(message);
+                getLog().infoSimTime(this, "Sent : " + message.toString());
 
-        if (resource instanceof Message) {
-            Message message = (Message) resource;
-            getOs().getAdHocModule().sendV2xMessage(message);
-            getLog().infoSimTime(this, "Sent : " + message.toString());
+            }
+        } else {
+            getLog().infoSimTime(this, "Event Tick: ");
+
+            // Send a Awareness message every 1 second
+            if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
+                getLog().infoSimTime(this, "Scheduling Info Message: ");
+                sendVehInfoMsg();
+            }
+            getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
 
         }
-
-        // Example: Send a Awareness message every 1 second
-        if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
-            sendVehInfoMsg();
-        }
-
-        getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
 
     }
 
@@ -355,7 +359,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 .topological().broadcast()
                 .build();
 
-        long time = getOs().getSimulationTime();
+        long currentTime = getOs().getSimulationTime();
         String carId = getOs().getId();
         String messageId = carId + "_" + msgIdCounter++;
 
@@ -404,7 +408,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         VehInfoMessage message = new VehInfoMessage(
                 routing,
                 messageId,
-                time,
+                currentTime,
                 carId,
                 new Position(getOs().getPosition()),
                 this.vehHeading,
@@ -416,8 +420,11 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 forwarderId,
                 carId);
 
-        getOs().getAdHocModule().sendV2xMessage(message);
-        getLog().infoSimTime(this, "Sent VehInfoMessage: " + message.toString());
+        EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelay, this);
+        enviarMsg.withResource(message);
+        enviarMsg.schedule();
+        // getOs().getAdHocModule().sendV2xMessage(message);
+        // getLog().infoSimTime(this, "Sent VehInfoMessage: " + message.toString());
     }
 
     private NeighborInfo findNeighbor(String DestId) {
