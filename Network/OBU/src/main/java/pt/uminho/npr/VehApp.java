@@ -14,6 +14,7 @@ import org.eclipse.mosaic.lib.enums.VehicleStopMode;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.vehicle.VehicleData;
 import org.eclipse.mosaic.lib.util.scheduling.Event;
+import org.eclipse.mosaic.lib.util.scheduling.EventBuilder;
 import org.eclipse.mosaic.rti.TIME;
 
 import javax.annotation.Nonnull;
@@ -59,8 +60,16 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     }
 
     @Override
-    public void processEvent(Event arg0) throws Exception {
+    public void processEvent(Event event) throws Exception {
         cleanupOldNeighbors();
+        Object resource = event.getResource();
+
+        if (resource instanceof Message) {
+            Message message = (Message) resource;
+            getOs().getAdHocModule().sendV2xMessage(message);
+            getLog().infoSimTime(this, "Sent : " + message.toString());
+
+        }
 
         // Example: Send a Awareness message every 1 second
         if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
@@ -141,8 +150,10 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                                 slowMsg.getReceiverName(),
                                 slowMsg.getTargetSpeed());
 
-                        getOs().getAdHocModule().sendV2xMessage(message);
-                        getLog().infoSimTime(this, "Sent SlowMessage: " + message.toString());
+                        EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelay, this);
+                        enviarMsg.withResource(message);
+                        enviarMsg.schedule();
+
                     } // se nao existe nao faco nada
 
                 }
@@ -172,8 +183,9 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                             slowMsg.getReceiverName(),
                             slowMsg.getTargetSpeed());
 
-                    getOs().getAdHocModule().sendV2xMessage(message);
-                    getLog().infoSimTime(this, "Sent SlowMessage: " + message.toString());
+                    EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelay, this);
+                    enviarMsg.withResource(message);
+                    enviarMsg.schedule();
                 }
             }
 
@@ -271,8 +283,9 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                                 forwarderId,
                                 getOs().getId());
 
-                        getOs().getAdHocModule().sendV2xMessage(message);
-                        getLog().infoSimTime(this, "Sent VehInfoMsg: " + message.toString());
+                        EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelay, this);
+                        enviarMsg.withResource(message);
+                        enviarMsg.schedule();
                     } // else i dont know any rsu's so i dont BROADCAST
 
                 }
