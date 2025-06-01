@@ -100,7 +100,8 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
                     sendStopMessage(msg.getFwrdId(), mode, msg.getSenderName());
 
                 } else {
-                    sendResumeMessage(msg.getFwrdId(), mode, msg.getSenderName());
+                    if (!emergencyVehiclesPosition.isEmpty())
+                        sendResumeMessage(msg.getFwrdId(), mode, msg.getSenderName());
                 }
 
             } else if (type.equals("Emergency")) {
