@@ -9,7 +9,7 @@ TARGET_DIR="scenarios/vehApp/application"
 find $TARGET_DIR -name "*.jar" -exec rm -f {} \;
 
 # Array of modules to build
-modules=("OBU" "RSU" "FOG")
+modules=("OBU" "RSU" "FOG" "OBU_EmergV")
 
 # Build each module and copy the resulting JARs
 for module in "${modules[@]}"; do
