@@ -27,8 +27,8 @@ import java.util.HashSet;
 public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         implements VehicleApplication, CommunicationApplication {
     private final long MsgDelay = 200 * TIME.MILLI_SECOND;
-    private final int Power = 5000;
-    private final double Distance = 1000.0;
+    private final int Power = 50;
+    private final double Distance = 140.0;
     private static final double DECELERATION_NORMAL = 4.0; // m/s²
     private static final double DECELERATION_EMERGENCY = 9.0; // m/s²
 
@@ -196,12 +196,29 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             // TODO: Reverter desaceleração e paragem
 
         } else if (receivedMessage.getMessage() instanceof StopMessage) {
+            VehicleStopMode currentStopMode = getOs().getVehicleData().getVehicleStopMode();
+            getLog().infoSimTime(this, "Received StopMessage");
 
-            StopMessage stopMsg = (StopMessage) receivedMessage.getMessage();
-            getLog().infoSimTime(this, "Received STOP message from " + stopMsg.getSenderName());
+            if (currentStopMode != VehicleStopMode.PARK_ON_ROADSIDE) {
 
-            getOs().stopNow(VehicleStopMode.PARK_ON_ROADSIDE, slowDownTime(this.vehSpeed, 0, DECELERATION_EMERGENCY));
-            getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
+                StopMessage stopMsg = (StopMessage) receivedMessage.getMessage();
+
+                getOs().stopNow(VehicleStopMode.PARK_ON_ROADSIDE, (long) 60000000000.0);
+                // slowDownTime(this.vehSpeed, 0, DECELERATION_EMERGENCY));
+                getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
+            }
+
+        } else if (receivedMessage.getMessage() instanceof ResumeMessage) {
+            VehicleStopMode currentStopMode = getOs().getVehicleData().getVehicleStopMode();
+            getLog().infoSimTime(this, "Received ResumeMessage, Stop mode is:" + currentStopMode);
+
+            if (currentStopMode == VehicleStopMode.PARK_ON_ROADSIDE) {
+
+                getOs().resume();
+                // getOs().resetSpeed();
+                // slowDownTime(this.vehSpeed, 0, DECELERATION_EMERGENCY));
+                getLog().infoSimTime(this, "Vehicle is resuming route.");
+            }
 
         } else if (receivedMessage.getMessage() instanceof BeaconMsg) {
 
@@ -332,7 +349,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
     @Override
     public void onVehicleUpdated(@Nullable VehicleData previousVehicleData, @Nonnull VehicleData updatedVehicleData) {
-        // getLog().infoSimTime(this, "onVehicleUpdated");
+        getLog().infoSimTime(this, "onVehicleUpdated: " + updatedVehicleData.getVehicleStopMode());
 
         this.vehHeading = updatedVehicleData.getHeading().doubleValue();
         double speedKmh = updatedVehicleData.getSpeed() * 3.6;

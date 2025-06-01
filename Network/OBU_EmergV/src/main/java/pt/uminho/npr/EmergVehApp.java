@@ -27,8 +27,8 @@ import java.util.HashSet;
 public class EmergVehApp extends AbstractApplication<VehicleOperatingSystem>
         implements VehicleApplication, CommunicationApplication {
     private final long MsgDelay = 200 * TIME.MILLI_SECOND;
-    private final int Power = 5000;
-    private final double Distance = 1000.0;
+    private final int Power = 50;
+    private final double Distance = 140.0;
     private static final double DECELERATION_NORMAL = 4.0; // m/s²
     private static final double DECELERATION_EMERGENCY = 9.0; // m/s²
 
@@ -200,8 +200,8 @@ public class EmergVehApp extends AbstractApplication<VehicleOperatingSystem>
             StopMessage stopMsg = (StopMessage) receivedMessage.getMessage();
             getLog().infoSimTime(this, "Received STOP message from " + stopMsg.getSenderName());
 
-            getOs().stopNow(VehicleStopMode.PARK_ON_ROADSIDE, slowDownTime(this.vehSpeed, 0, DECELERATION_EMERGENCY));
-            getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
+            // getOs().stopNow(VehicleStopMode.PARK_ON_ROADSIDE, slowDownTime(this.vehSpeed, 0, DECELERATION_EMERGENCY));
+            // getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
 
         } else if (receivedMessage.getMessage() instanceof BeaconMsg) {
 

@@ -27,8 +27,8 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 {
     private final long MsgDelayAdHoc = 200 * TIME.MILLI_SECOND;
     private final long MsgDelayCell = 0 * TIME.MILLI_SECOND; // 0 porque o federate do Cell ja mete delay
-    private final int Power = 5000;
-    private final double Distance = 1000.0;
+    private final int Power = 50;
+    private final double Distance = 140.0;
 
     @Override
     public void onStartup() {
@@ -101,7 +101,7 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     }
 
     private boolean isFogMessage(Message msg) {
-        return msg instanceof SlowMessage || msg instanceof StopMessage;
+        return msg instanceof SlowMessage || msg instanceof StopMessage || msg instanceof ResumeMessage;
     }
 
     private boolean isNetworkMessage(Message msg) {
