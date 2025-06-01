@@ -9,13 +9,16 @@ import org.eclipse.mosaic.fed.application.app.api.os.ServerOperatingSystem;
 import org.eclipse.mosaic.interactions.communication.V2xMessageTransmission;
 import org.eclipse.mosaic.lib.objects.road.IConnection;
 import org.eclipse.mosaic.lib.objects.road.INode;
+import org.eclipse.mosaic.lib.objects.road.IRoadPosition;
 import org.eclipse.mosaic.lib.objects.v2x.GenericV2xMessage;
 import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.util.scheduling.Event;
 import org.eclipse.mosaic.lib.util.scheduling.EventProcessor;
 import org.eclipse.mosaic.rti.TIME;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FOGApp extends AbstractApplication<ServerOperatingSystem> implements CommunicationApplication {
@@ -23,6 +26,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
     private final long MsgDelay = 200 * TIME.MILLI_SECOND;
     private final int Power = 50;
     private final double Distance = 140.0;
+    private final Map<String, String> emergencyVehiclesPosition = new HashMap<>(); // Vehid -> IconnectId
 
     @Override
     public void onStartup() {
@@ -72,18 +76,27 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
             //
             // maybe mensagens com um delay superior a x ignorar, tipo aging factor
 
-            // // IConnection connection = getOs().getRoutingModule()
-            // // .getClosestRoadPosition(msg.getSenderPosition().toGeoPoint())
-            // // .getConnection();
+            IRoadPosition road = getOs().getRoutingModule()
+                    .getClosestRoadPosition(msg.getSenderPosition().toGeoPoint());
 
-            // // List<String> ids = connection.getOutgoingConnections()
-            // // .stream()
-            // // .map(IConnection::getId)
-            // // .collect(Collectors.toList());
-            // getLog().infoSimTime(this, "Connection Id: " + connection.getId());
-            // getLog().infoSimTime(this, "Outgoing Connections: " + ids);
-            // getLog().infoSimTime(this, "Incoming Connections: " +
-            // connection.getIncomingConnections());
+            INode next_turn = road.getUpcomingNode();
+
+            IConnection connection = road.getConnection();
+
+            List<String> outgoing_ids = connection.getOutgoingConnections()
+                    .stream()
+                    .map(IConnection::getId)
+                    .collect(Collectors.toList());
+
+            List<String> incoming_ids = connection.getOutgoingConnections()
+                    .stream()
+                    .map(IConnection::getId)
+                    .collect(Collectors.toList());
+
+            getLog().infoSimTime(this, "Connection Id: " + connection.getId());
+            getLog().infoSimTime(this, "Upcoming Node: " + next_turn.getId());
+            getLog().infoSimTime(this, "Outgoing Connections: " + outgoing_ids);
+            getLog().infoSimTime(this, "Incoming Connections: " + incoming_ids);
 
             double speedLimit = 40;
             if (msg.getSpeed() > speedLimit + 5) {// 5km de respiro

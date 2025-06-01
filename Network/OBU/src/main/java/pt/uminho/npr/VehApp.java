@@ -27,8 +27,8 @@ import java.util.HashSet;
 public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         implements VehicleApplication, CommunicationApplication {
     private final long MsgDelay = 200 * TIME.MILLI_SECOND;
-    private final int Power = 50;
-    private final double Distance = 140.0;
+    private final int Power = 5000;
+    private final double Distance = 1000.0;
     private static final double DECELERATION_NORMAL = 4.0; // m/s²
     private static final double DECELERATION_EMERGENCY = 9.0; // m/s²
 
@@ -55,7 +55,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 .distance(Distance)
                 .create());
 
-        getLog().infoSimTime(this, "onStartup: Set up");
+        getLog().infoSimTime(this, "=== Starting Standard Vehicle ===");
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
     }
 
@@ -71,7 +71,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
             }
         } else {
-            getLog().infoSimTime(this, "Event Tick: ");
+            // getLog().infoSimTime(this, "Event Tick: ");
 
             // Send a Awareness message every 1 second
             if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
@@ -360,7 +360,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                 .build();
 
         long currentTime = getOs().getSimulationTime();
-        String carId = getOs().getId();
+        String carId = "Default_" + getOs().getId();
         String messageId = carId + "_" + msgIdCounter++;
 
         /**

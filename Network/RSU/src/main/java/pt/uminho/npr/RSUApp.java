@@ -27,8 +27,8 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 {
     private final long MsgDelayAdHoc = 200 * TIME.MILLI_SECOND;
     private final long MsgDelayCell = 0 * TIME.MILLI_SECOND; // 0 porque o federate do Cell ja mete delay
-    private final int Power = 50;
-    private final double Distance = 140.0;
+    private final int Power = 5000;
+    private final double Distance = 1000.0;
 
     @Override
     public void onStartup() {
@@ -50,6 +50,8 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
 
         Object resource = event.getResource();
         if (resource != null) {
+            getLog().infoSimTime(this, "Sent : " + resource.toString());
+
             if (resource instanceof Message) {
                 Message message = (Message) resource;
 
@@ -64,16 +66,14 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                 BeaconMsg message = (BeaconMsg) resource;
                 getOs().getAdHocModule().sendV2xMessage(message);
 
-                getLog().infoSimTime(this, "Sent : " + message.toString());
-
             }
 
         } else {
-            getLog().infoSimTime(this, "Event Tick: ");
+            // getLog().infoSimTime(this, "Event Tick: ");
 
             // Send a Awareness message every 1 second
             if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
-                getLog().infoSimTime(this, "Scheduling Beacon Message: ");
+                // getLog().infoSimTime(this, "Scheduling Beacon Message: ");
                 sendBeaconMsg();
             }
             getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelayAdHoc, this);
@@ -111,54 +111,56 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
     @Override
     public void onMessageReceived(ReceivedV2xMessage receivedMsg) {
 
-        Message msg = (Message) receivedMsg.getMessage();
-        long currentTime = getOs().getSimulationTime();
+        if (receivedMsg.getMessage() instanceof Message) {
+            Message msg = (Message) receivedMsg.getMessage();
+            long currentTime = getOs().getSimulationTime();
 
-        if (isNetworkMessage(msg)) {
-            // only forward the messages that i am the forwardId of
-            // VehInfoMessage vehMsg = (VehInfoMessage) msg;
+            if (isNetworkMessage(msg)) {
+                // only forward the messages that i am the forwardId of
+                // VehInfoMessage vehMsg = (VehInfoMessage) msg;
 
-            if (msg.getFwrdId() == getOs().getId() || msg.getMode() == Mode.SEARCH) {
+                if (msg.getFwrdId() == getOs().getId() || msg.getMode() == Mode.SEARCH) {
 
-                getLog().infoSimTime(this, "Received msg: " + msg.toString());
+                    getLog().infoSimTime(this, "Received msg: " + msg.toString());
 
-                msg.setFwrdId(getOs().getId()); // if it is Mode Search i want it to be rsu_id so that fog can
-                                                // traceback the message
+                    msg.setFwrdId(getOs().getId()); // if it is Mode Search i want it to be rsu_id so that fog can
+                                                    // traceback the message
 
-                MessageRouting routing = getOs().getCellModule().createMessageRouting()
-                        .tcp()
-                        .destination("server_0")
-                        .topological()
-                        .build();
+                    MessageRouting routing = getOs().getCellModule().createMessageRouting()
+                            .tcp()
+                            .destination("server_0")
+                            .topological()
+                            .build();
 
-                EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelayCell, this);
-                enviarMsg.withResource(msg.clone(routing));
-                enviarMsg.schedule();
+                    EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelayCell, this);
+                    enviarMsg.withResource(msg.clone(routing));
+                    enviarMsg.schedule();
 
-                // getOs().getCellModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+                    // getOs().getCellModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+                }
+            } else if (isFogMessage(msg)) {
+
+                if (msg.getFwrdId() == getOs().getId()) {
+
+                    getLog().infoSimTime(this, "Received msg: " + msg.toString());
+
+                    MessageRouting routing = getOs().getAdHocModule()
+                            .createMessageRouting()
+                            .channel(AdHocChannel.CCH)
+                            .topological().broadcast()
+                            .build();
+
+                    EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelayAdHoc, this);
+                    enviarMsg.withResource(msg.clone(routing));
+                    enviarMsg.schedule();
+
+                    // getOs().getAdHocModule().sendV2xMessage((V2xMessage) msg.clone(routing));
+                }
+            } else {
+
+                getLog().infoSimTime(this, "Undefined behavior for " + msg.toString());
+
             }
-        } else if (isFogMessage(msg)) {
-
-            if (msg.getFwrdId() == getOs().getId()) {
-
-                getLog().infoSimTime(this, "Received msg: " + msg.toString());
-
-                MessageRouting routing = getOs().getAdHocModule()
-                        .createMessageRouting()
-                        .channel(AdHocChannel.CCH)
-                        .topological().broadcast()
-                        .build();
-
-                EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelayAdHoc, this);
-                enviarMsg.withResource(msg.clone(routing));
-                enviarMsg.schedule();
-
-                // getOs().getAdHocModule().sendV2xMessage((V2xMessage) msg.clone(routing));
-            }
-        } else {
-
-            getLog().infoSimTime(this, "Undefined behavior for " + msg.toString());
-
         }
     }
 
