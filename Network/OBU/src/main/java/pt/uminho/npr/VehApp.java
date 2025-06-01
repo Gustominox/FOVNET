@@ -199,11 +199,11 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             VehicleStopMode currentStopMode = getOs().getVehicleData().getVehicleStopMode();
             getLog().infoSimTime(this, "Received StopMessage");
 
-            if (currentStopMode != VehicleStopMode.PARK_ON_ROADSIDE) {
+            if (currentStopMode == VehicleStopMode.NOT_STOPPED) {
 
                 StopMessage stopMsg = (StopMessage) receivedMessage.getMessage();
 
-                getOs().stopNow(VehicleStopMode.PARK_ON_ROADSIDE, (long) 60000000000.0);
+                getOs().stopNow(VehicleStopMode.PARK_ON_ROADSIDE, (long) 30000000000.0);
                 // slowDownTime(this.vehSpeed, 0, DECELERATION_EMERGENCY));
                 getLog().infoSimTime(this, "Vehicle is stopping due to received STOP command.");
             }
