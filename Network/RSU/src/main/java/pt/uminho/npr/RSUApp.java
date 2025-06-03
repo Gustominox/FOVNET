@@ -61,7 +61,6 @@ public class RSUApp extends AbstractApplication<RoadSideUnitOperatingSystem>
                     getOs().getAdHocModule().sendV2xMessage(message);
 
                 }
-                getLog().infoSimTime(this, "Sent : " + message.toString());
             } else if (resource instanceof BeaconMsg) {
                 BeaconMsg message = (BeaconMsg) resource;
                 getOs().getAdHocModule().sendV2xMessage(message);
