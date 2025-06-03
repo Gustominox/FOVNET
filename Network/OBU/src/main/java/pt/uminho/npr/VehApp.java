@@ -117,9 +117,11 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
         if (receivedMessage.getMessage() instanceof SlowMessage) {
 
             SlowMessage slowMsg = (SlowMessage) receivedMessage.getMessage();
+            String veh_id = "Default_" + getOs().getId();
 
-            if (slowMsg.getReceiverName() == getOs().getId()) {
-                getLog().infoSimTime(this, "Received message: " + slowMsg.toString());
+            getLog().infoSimTime(this, "Received message: " + slowMsg.toString());
+
+            if (veh_id.equals(slowMsg.getReceiverName())) {
 
                 float targetSpeed = (float) (slowMsg.getTargetSpeed() / 3.6); // m/s
 
@@ -129,7 +131,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
             } else if (slowMsg.getMode() == Mode.DIRECT) {
 
-                if (slowMsg.getFwrdId() == getOs().getId()) {
+                if (veh_id.equals(slowMsg.getFwrdId())) {
 
                     String destId = slowMsg.getReceiverName();
                     NeighborInfo destInfo = findNeighbor(destId);
@@ -247,8 +249,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
             // Receive Info message
             VehInfoMessage fwdMsg = (VehInfoMessage) receivedMessage.getMessage();
             String senderId = fwdMsg.getSenderName();
-
-            if (senderId != getOs().getId()) { // only react if message is not mine, this avoid loopbacks
+            String veh_id = "Default_" + getOs().getId();
+            if (!senderId.equals(veh_id)) { // only react if message is not mine, this avoid loopbacks
 
                 // Atualizar vizinhança
                 NeighborInfo neighbor = new NeighborInfo(
@@ -274,8 +276,8 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                  * 3. if not do nothing to avoid loopbacks
                  */
                 // Forward Info message if my id is equal to fwrdID of msg
-                if (fwdMsg.getFwrdId() == getOs().getId() || fwdMsg.getMode() == Mode.SEARCH) {
-                    getLog().infoSimTime(this, "Forwarding Message ");
+                if (veh_id.equals(fwdMsg.getFwrdId()) || fwdMsg.getMode() == Mode.SEARCH) {
+                    getLog().infoSimTime(this, "Forwarding Message: " + fwdMsg.toString());
 
                     String forwarderId = bestNeighbor();
 
@@ -302,7 +304,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
                                 fwdMsg.getNumberOfHops(),
                                 Mode.DIRECT,
                                 forwarderId,
-                                getOs().getId());
+                                veh_id);
 
                         EventBuilder enviarMsg = getOs().getEventManager().newEvent(currentTime + MsgDelay, this);
                         enviarMsg.withResource(message);
@@ -349,7 +351,6 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
     @Override
     public void onVehicleUpdated(@Nullable VehicleData previousVehicleData, @Nonnull VehicleData updatedVehicleData) {
-        getLog().infoSimTime(this, "onVehicleUpdated: " + updatedVehicleData.getVehicleStopMode());
 
         this.vehHeading = updatedVehicleData.getHeading().doubleValue();
         double speedKmh = updatedVehicleData.getSpeed() * 3.6;
