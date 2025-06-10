@@ -72,7 +72,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
             String senderId = msg.getSenderName();
             String type = senderId.split("_")[0];
             String id = senderId.split("_")[2];
-            getLog().infoSimTime(this, "Received Info msg: " + type + " from " + id);
+            getLog().infoSimTime(this, "Received Info msg: " + msg.toString());
 
             // TODO : need to have a sense of old messages, if a message is received
             // that has an older timestamp than a message i already have from that vehicle
@@ -105,7 +105,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
                 }
 
             } else if (type.equals("Emergency")) {
-                getLog().infoSimTime(this, "Emergency Detected");
+                getLog().infoSimTime(this, "Emergency Detected on road: " + connection.getId());
 
                 emergencyVehiclesPosition.put(id, connection.getId());
 
@@ -126,7 +126,7 @@ public class FOGApp extends AbstractApplication<ServerOperatingSystem> implement
             getLog().infoSimTime(this, "Outgoing Connections: " + outgoing_ids);
             getLog().infoSimTime(this, "Incoming Connections: " + incoming_ids);
 
-            double speedLimit = 40;
+            double speedLimit = 30;
             if (msg.getSpeed() > speedLimit + 5) {// 5km de respiro
                 Mode mode;
                 if (msg.getNumberOfHops() == 0)

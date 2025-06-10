@@ -75,7 +75,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
             // Send a Awareness message every 1 second
             if (getOs().getSimulationTime() % (1 * TIME.SECOND) == 0) {
-                getLog().infoSimTime(this, "Scheduling Info Message: ");
+                // getLog().infoSimTime(this, "Scheduling Info Message: ");
                 sendVehInfoMsg();
             }
             getOs().getEventManager().addEvent(getOs().getSimulationTime() + MsgDelay, this);
@@ -338,7 +338,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
     private void cleanupOldNeighbors() {
         long currentTime = getOs().getSimulationTime();
-        long threshold = 10 * TIME.SECOND;
+        long threshold = 5 * TIME.SECOND;
 
         knownVehicleNeighbors.values().removeIf(n -> (currentTime - n.lastSeen) > threshold);
         knownRsuNeighbors.values().removeIf(n -> (currentTime - n.lastSeen) > threshold);
@@ -465,7 +465,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
 
     private NeighborInfo findClosestRsu(Position myPosition) {
         if (knownRsuNeighbors.isEmpty()) {
-            getLog().infoSimTime(this, "No RSUs known.");
+            // getLog().infoSimTime(this, "No RSUs known.");
             return null;
         }
 
@@ -485,7 +485,7 @@ public class VehApp extends AbstractApplication<VehicleOperatingSystem>
     private NeighborInfo findClosestNeighborToRsu() {
         // If there are no neighbors, return null
         if (knownVehicleNeighbors.isEmpty()) {
-            getLog().infoSimTime(this, "No Vehicles known.");
+            // getLog().infoSimTime(this, "No Vehicles known.");
             return null;
         }
 
