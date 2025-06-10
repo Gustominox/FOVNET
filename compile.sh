@@ -2,8 +2,9 @@
 set -e
 
 # Define base directories
-BASE_DIR="../NPR-2425/Network"
-TARGET_DIR="scenarios/vehApp/application"
+
+BASE_DIR="./FOVNET/Network" # Source dir
+TARGET_DIR="./eclipse-mosaic-25.0/scenarios/vehApp/application" # Target dir of jar's, usually the application dir of the scenario in eclipse mosaic
 
 # Remove all previous JAR files in the target directory
 find $TARGET_DIR -name "*.jar" -exec rm -f {} \;
