@@ -38,7 +38,7 @@ The aim of this project is to design and simulate a **custom multihop forwarding
 
 ### Requirements
 
-- Installed and configured **Eclipse MOSAIC version 25.0**
+- Installed and configured [**Eclipse MOSAIC version 25.0**](https://eclipse.dev/mosaic/post/release-25-0/)
 - Linux shell or WSL (for `compile.sh` script)
 
 ### Steps to Build and Run
