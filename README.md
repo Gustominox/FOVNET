@@ -6,6 +6,8 @@
 
 This project implements a vehicular communication system based on **Fog Computing**, developed and tested using the **Eclipse MOSAIC 25.0** simulation framework. The system enables reliable, low-latency data exchange between vehicles (OBUs), Road-Side Units (RSUs), and a Fog node, with the ultimate goal of improving road safety.
 
+For a better understanding of the project please read the [article](Article.pdf).
+
 ## 🚗 Project Purpose
 
 The aim of this project is to design and simulate a **custom multihop forwarding protocol** to ensure robust connectivity between vehicles and the Fog server. By leveraging ad hoc V2X communication and central Fog processing, the system is capable of:
